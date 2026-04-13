@@ -313,6 +313,27 @@ app.get('/api/spotify/for-you', async (req, res) => {
   res.json(data);
 });
 
+app.get('/api/spotify/playlists', async (req, res) => {
+  const token = await getFreshAccessToken();
+  if (!token) { res.status(401).json({ error: 'Not connected' }); return; }
+
+  const cacheKey = 'playlists';
+  if (!shouldBypassCache(req)) {
+    const cached = getCachedEntry(cacheKey);
+    if (cached) { console.log('[cache] HIT:', cacheKey); res.json(cached); return; }
+  }
+  console.log('[cache] MISS:', cacheKey);
+
+  const response = await fetch(
+    `${SPOTIFY_API_BASE}/me/playlists?limit=20`,
+    { headers: { Authorization: `Bearer ${token}` } },
+  );
+  if (!response.ok) { res.status(response.status).json({ error: 'Spotify API error' }); return; }
+  const data = await response.json();
+  setCachedEntry(cacheKey, data);
+  res.json(data);
+});
+
 // Audio features endpoint is restricted (403) for new Spotify apps since Nov 2024.
 // Return an empty response so the frontend does not error.
 app.get('/api/spotify/audio-features/:ids', (_req, res) => {
@@ -344,9 +365,11 @@ app.post('/api/explain', async (req, res) => {
       matchReasons,
     });
 
-    const { stdout, stderr } = await execFileAsync('claude', ['-p', prompt], {
+    const claudePath = process.env.CLAUDE_PATH || '/usr/bin/claude';
+    const { stdout, stderr } = await execFileAsync(claudePath, ['-p', prompt], {
       timeout: CLAUDE_TIMEOUT_MS,
       maxBuffer: 1024 * 1024,
+      env: { ...process.env, HOME: process.env.HOME || '/root' },
     });
 
     if (stderr) {
