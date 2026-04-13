@@ -1,10 +1,11 @@
 import { useState } from 'react';
-import type { AlgorithmDecision, DetailLevel } from '../../data/types';
-import { explanations } from '../../data/decisions';
+import type { AlgorithmDecision, Explanation, DetailLevel } from '../../data/types';
+import { explanations as mockExplanations } from '../../data/decisions';
 import styles from './DecisionHistory.module.css';
 
 interface DecisionHistoryProps {
   decisions: AlgorithmDecision[];
+  liveExplanations?: Explanation[];
   detailLevel: DetailLevel;
 }
 
@@ -16,7 +17,7 @@ const typeLabels: Record<AlgorithmDecision['type'], string> = {
   search_ranking: 'Search Ranking',
 };
 
-export function DecisionHistory({ decisions, detailLevel }: DecisionHistoryProps) {
+export function DecisionHistory({ decisions, liveExplanations, detailLevel }: DecisionHistoryProps) {
   const [expandedId, setExpandedId] = useState<string | null>(null);
 
   const sorted = [...decisions].sort(
@@ -27,7 +28,8 @@ export function DecisionHistory({ decisions, detailLevel }: DecisionHistoryProps
     <div className={styles.timeline}>
       {sorted.map(decision => {
         const isExpanded = expandedId === decision.id;
-        const explanation = explanations.find(e => e.decisionId === decision.id);
+        const explanation = liveExplanations?.find(e => e.decisionId === decision.id)
+          ?? mockExplanations.find(e => e.decisionId === decision.id);
 
         return (
           <div key={decision.id} className={styles.entry}>

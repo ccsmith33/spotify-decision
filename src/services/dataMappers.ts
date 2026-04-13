@@ -59,7 +59,7 @@ export function buildLiveRecommendation(
     spotifyTrack.popularity >= 70 ? 'High' : spotifyTrack.popularity >= 40 ? 'Medium' : 'Niche';
 
   const factors = [
-    { name: 'Genre Match', weight: 0.30, description: artistGenres.length > 0 ? `Genres: ${artistGenres.slice(0, 3).join(', ')}` : 'Matches genres in your library' },
+    { name: 'Genre Match', weight: 0.30, description: artistGenres.length > 0 ? `Genres: ${artistGenres.slice(0, 3).join(', ')}` : 'Recommended based on your listening patterns' },
     { name: 'Artist Similarity', weight: 0.25, description: matchedArtist ? 'One of your top artists' : 'Similar to artists you listen to' },
     { name: 'Listening Frequency', weight: 0.20, description: 'Based on your recent listening patterns' },
     { name: 'Popularity', weight: 0.15, description: `${popularityTier} popularity (${spotifyTrack.popularity}/100)` },
@@ -90,6 +90,6 @@ export function buildLiveRecommendation(
         'Exact collaborative filtering weights and neural network internals are proprietary.',
       generatedAt: new Date().toISOString(),
     },
-    topFactor: factors[0].description,
+    topFactor: claudeExplanation.basic || factors[0].description,
   };
 }

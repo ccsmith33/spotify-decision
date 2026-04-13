@@ -33,6 +33,8 @@ export interface SpotifyContextValue {
   recommendations: Recommendation[];
   topTracks: Track[];
   topArtists: Artist[];
+  recentlyPlayed: { track: Track; playedAt: string }[];
+  playlists: { id: string; name: string; imageUrl: string | null; owner: string; trackCount: number }[];
   explanations: Record<string, string>;
   audioFeatures: Record<string, SpotifyAudioFeature>;
 }

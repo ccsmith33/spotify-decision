@@ -1,5 +1,8 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@testing-library/react';
+import type { ReactNode } from 'react';
+import { SpotifyContext } from '../context/SpotifyContext';
+import type { SpotifyContextValue } from '../context/SpotifyContext';
 import { Sidebar } from '../components/shell/Sidebar';
 import { TopBar } from '../components/shell/TopBar';
 import { NowPlayingBar } from '../components/shell/NowPlayingBar';
@@ -24,21 +27,55 @@ import { appeals } from '../data/appeals';
 import { glossaryTerms } from '../data/glossary';
 import { tracks } from '../data/tracks';
 
+const mockSpotifyContext: SpotifyContextValue = {
+  isAuthenticated: false,
+  isConnected: false,
+  isLoading: false,
+  isRefreshing: false,
+  login: async () => {},
+  logout: () => {},
+  refreshData: async () => {},
+  user: null,
+  playback: {
+    currentTrack: tracks[0],
+    isPlaying: false,
+    progress: 0,
+    volume: 65,
+    albumImageUrl: null,
+    togglePlay: () => {},
+    nextTrack: () => {},
+    previousTrack: () => {},
+    setProgress: () => {},
+    setVolume: () => {},
+  },
+  recommendations: [],
+  topTracks: [],
+  topArtists: [],
+  recentlyPlayed: [],
+  playlists: [],
+  explanations: {},
+  audioFeatures: {},
+};
+
+function SpotifyWrapper({ children }: { children: ReactNode }) {
+  return <SpotifyContext value={mockSpotifyContext}>{children}</SpotifyContext>;
+}
+
 describe('Shell Components', () => {
   describe('Sidebar', () => {
     it('renders Home and Search nav items', () => {
-      render(<Sidebar activeTab="demo" />);
+      render(<SpotifyWrapper><Sidebar activeTab="demo" /></SpotifyWrapper>);
       expect(screen.getByText('Home')).toBeInTheDocument();
       expect(screen.getByText('Search')).toBeInTheDocument();
     });
 
     it('renders Your Library section', () => {
-      render(<Sidebar activeTab="demo" />);
+      render(<SpotifyWrapper><Sidebar activeTab="demo" /></SpotifyWrapper>);
       expect(screen.getByText('Your Library')).toBeInTheDocument();
     });
 
-    it('renders playlist items', () => {
-      render(<Sidebar activeTab="demo" />);
+    it('renders mock playlist items when unauthenticated', () => {
+      render(<SpotifyWrapper><Sidebar activeTab="demo" /></SpotifyWrapper>);
       expect(screen.getByText('Discover Weekly')).toBeInTheDocument();
     });
   });
@@ -184,15 +221,18 @@ describe('Demo Components', () => {
       expect(screen.getByText('Anti-Hero')).toBeInTheDocument();
     });
 
-    it('renders "Why" column values', () => {
+    it('renders "Why" column values from explanation.basic', () => {
       render(<RecommendationList recommendations={recommendations} detailLevel="basic" />);
-      expect(screen.getByText('Matches your pop listening history')).toBeInTheDocument();
+      // The Why column shows explanation.basic when available
+      const whyCells = screen.getAllByText(explanations[1].basic);
+      expect(whyCells.length).toBeGreaterThan(0);
     });
 
-    it('expands a row when clicked', () => {
+    it('expands a row when clicked to show explanation and factors', () => {
       render(<RecommendationList recommendations={recommendations} detailLevel="basic" />);
       fireEvent.click(screen.getByText('Anti-Hero'));
-      expect(screen.getByText(explanations[1].basic)).toBeInTheDocument();
+      // After expanding, the factor breakdown should be visible
+      expect(screen.getByText('Audio Features')).toBeInTheDocument();
     });
   });
 

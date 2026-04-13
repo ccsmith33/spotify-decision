@@ -67,7 +67,11 @@ export function RecommendationList({ recommendations, detailLevel }: Recommendat
                 </div>
               </div>
               <span className={styles.albumCell}>{rec.album.title}</span>
-              <span className={styles.whyCell}>{rec.topFactor}</span>
+              <span className={styles.whyCell}>
+                {rec.explanation.basic && rec.explanation.basic !== 'Recommended based on your listening patterns.'
+                  ? rec.explanation.basic
+                  : rec.topFactor}
+              </span>
               <span className={styles.durationCell}>{formatDuration(rec.track.durationMs)}</span>
             </div>
             {isExpanded && (

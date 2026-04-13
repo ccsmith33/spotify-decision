@@ -27,6 +27,40 @@ const defaultExplanation: ThreeTierExplanation = {
   technical: 'Recommended based on your listening patterns and taste profile. No audio feature data available.',
 };
 
+function buildFallbackExplanation(
+  trackName: string,
+  artistName: string,
+  topGenres: string[],
+  topArtistNames: string[],
+): ThreeTierExplanation {
+  const isTopArtist = topArtistNames.some(
+    a => a.toLowerCase() === artistName.toLowerCase(),
+  );
+
+  if (isTopArtist) {
+    return {
+      basic: `You've been listening to ${artistName} a lot recently.`,
+      detailed: `"${trackName}" appears because ${artistName} is one of your most-played artists. The algorithm surfaces tracks from artists you engage with frequently.`,
+      technical: `"${trackName}" by ${artistName} ranked via artist-affinity score derived from your recent play history. ${artistName} is in your top-artist cluster, triggering high-confidence recommendation.`,
+    };
+  }
+
+  if (topGenres.length > 0) {
+    const genre = topGenres[0];
+    return {
+      basic: `Based on your taste in ${genre}.`,
+      detailed: `"${trackName}" by ${artistName} matches your interest in ${genre}. The algorithm found sonic and genre similarities to music you enjoy.`,
+      technical: `"${trackName}" by ${artistName} recommended via genre-affinity vector. Your top genre cluster includes ${topGenres.slice(0, 3).join(', ')}, and this track's genre embedding has high cosine similarity.`,
+    };
+  }
+
+  return {
+    basic: `Picked for you based on your recent listening.`,
+    detailed: `"${trackName}" by ${artistName} was selected based on patterns in your recent listening sessions.`,
+    technical: `"${trackName}" by ${artistName} recommended via collaborative filtering on implicit feedback signals from recent session history.`,
+  };
+}
+
 export function SpotifyProvider({ children }: Props) {
   const [isConnected, setIsConnected] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
@@ -37,6 +71,8 @@ export function SpotifyProvider({ children }: Props) {
   const [liveRecommendations, setLiveRecommendations] = useState<Recommendation[]>([]);
   const [liveTopTracks, setLiveTopTracks] = useState<Track[]>([]);
   const [liveTopArtists, setLiveTopArtists] = useState<Artist[]>([]);
+  const [recentlyPlayed, setRecentlyPlayed] = useState<{ track: Track; playedAt: string }[]>([]);
+  const [livePlaylists, setLivePlaylists] = useState<{ id: string; name: string; imageUrl: string | null; owner: string; trackCount: number }[]>([]);
   const [explanations, setExplanations] = useState<Record<string, string>>({});
 
   const mockPlayback = usePlaybackSimulation();
@@ -72,10 +108,12 @@ export function SpotifyProvider({ children }: Props) {
         // Playback won't work but data will
       }
 
-      // Fetch top tracks and top artists in parallel
-      const [topTracksRes, topArtistsRes] = await Promise.all([
+      // Fetch top tracks, top artists, playlists, and recently played in parallel
+      const [topTracksRes, topArtistsRes, playlistsRes, recentlyPlayedRes] = await Promise.all([
         fetch(`/api/spotify/top-tracks${refreshParam}`).then(r => r.ok ? r.json() : null).catch(() => null),
         fetch(`/api/spotify/top-artists${refreshParam}`).then(r => r.ok ? r.json() : null).catch(() => null),
+        fetch(`/api/spotify/playlists${refreshParam}`).then(r => r.ok ? r.json() : null).catch(() => null),
+        fetch(`/api/spotify/recently-played${refreshParam}`).then(r => r.ok ? r.json() : null).catch(() => null),
       ]);
 
       if (topTracksRes?.items) {
@@ -84,6 +122,27 @@ export function SpotifyProvider({ children }: Props) {
 
       if (topArtistsRes?.items) {
         setLiveTopArtists(topArtistsRes.items.map((a: SpotifyArtist) => mapSpotifyArtist(a)));
+      }
+
+      if (playlistsRes?.items) {
+        setLivePlaylists(
+          playlistsRes.items.map((p: { id: string; name: string; images: { url: string }[]; owner: { display_name: string }; tracks: { total: number } }) => ({
+            id: p.id,
+            name: p.name,
+            imageUrl: p.images?.[0]?.url ?? null,
+            owner: p.owner?.display_name ?? '',
+            trackCount: p.tracks?.total ?? 0,
+          })),
+        );
+      }
+
+      if (recentlyPlayedRes?.items) {
+        setRecentlyPlayed(
+          recentlyPlayedRes.items.map((item: { track: SpotifyTrack; played_at: string }) => ({
+            track: mapSpotifyTrack(item.track),
+            playedAt: item.played_at,
+          })),
+        );
       }
 
       // Collect genre and artist info from top artists
@@ -115,13 +174,15 @@ export function SpotifyProvider({ children }: Props) {
         // Fetch Claude explanations in parallel (three-tier)
         const explanationResults = await Promise.allSettled(
           recTracks.map(async (track: SpotifyTrack) => {
+            const trackArtistName = track.artists[0]?.name ?? '';
+            const fallback = buildFallbackExplanation(track.name, trackArtistName, uniqueGenres, topArtistNames);
             try {
               const response = await fetch('/api/explain', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                   trackName: track.name,
-                  artistName: track.artists[0]?.name ?? '',
+                  artistName: trackArtistName,
                   userTopGenres: uniqueGenres,
                   userTopArtists: topArtistNames,
                   popularity: track.popularity,
@@ -137,15 +198,17 @@ export function SpotifyProvider({ children }: Props) {
                 return {
                   trackId: track.id,
                   explanation: {
-                    basic: exp.basic ?? defaultExplanation.basic,
-                    detailed: exp.detailed ?? defaultExplanation.detailed,
-                    technical: exp.technical ?? defaultExplanation.technical,
+                    basic: exp.basic ?? fallback.basic,
+                    detailed: exp.detailed ?? fallback.detailed,
+                    technical: exp.technical ?? fallback.technical,
                   },
                 };
               }
-              return { trackId: track.id, explanation: defaultExplanation };
-            } catch {
-              return { trackId: track.id, explanation: defaultExplanation };
+              console.warn(`Claude /api/explain returned ${response.status} for "${track.name}" — using fallback`);
+              return { trackId: track.id, explanation: fallback };
+            } catch (err) {
+              console.warn(`Claude /api/explain failed for "${track.name}":`, err);
+              return { trackId: track.id, explanation: fallback };
             }
           }),
         );
@@ -198,6 +261,8 @@ export function SpotifyProvider({ children }: Props) {
     setLiveRecommendations([]);
     setLiveTopTracks([]);
     setLiveTopArtists([]);
+    setRecentlyPlayed([]);
+    setLivePlaylists([]);
     setExplanations({});
   }, []);
 
@@ -269,12 +334,14 @@ export function SpotifyProvider({ children }: Props) {
         : mockRecommendations,
       topTracks: isConnected && liveTopTracks.length > 0 ? liveTopTracks : mockTracks,
       topArtists: liveTopArtists,
+      recentlyPlayed,
+      playlists: livePlaylists,
       explanations,
       audioFeatures: {},
     }),
     [
       isConnected, isLoading, isRefreshing, login, logout, refreshData, user, playback,
-      liveRecommendations, liveTopTracks, liveTopArtists, explanations,
+      liveRecommendations, liveTopTracks, liveTopArtists, recentlyPlayed, livePlaylists, explanations,
     ],
   );
 
