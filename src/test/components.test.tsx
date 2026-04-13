@@ -55,6 +55,10 @@ const mockSpotifyContext: SpotifyContextValue = {
   playlists: [],
   explanations: {},
   audioFeatures: {},
+  selectedPlaylist: null,
+  selectPlaylist: () => {},
+  playlistTracks: [],
+  isLoadingPlaylist: false,
 };
 
 function SpotifyWrapper({ children }: { children: ReactNode }) {

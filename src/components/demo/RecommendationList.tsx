@@ -29,7 +29,7 @@ export function RecommendationList({ recommendations, detailLevel }: Recommendat
   return (
     <div className={styles.table}>
       <div className={styles.headerRow}>
-        <span className={styles.headerCellRight}>#</span>
+        <span className={styles.headerCellIndex}>#</span>
         <span className={styles.headerCell}>Title</span>
         <span className={styles.headerCell}>Album</span>
         <span className={styles.headerCell}>Why</span>
@@ -67,7 +67,7 @@ export function RecommendationList({ recommendations, detailLevel }: Recommendat
                 </div>
               </div>
               <span className={styles.albumCell}>{rec.album.title}</span>
-              <span className={styles.whyCell}>
+              <span className={styles.whyCell} title={rec.explanation.basic || rec.topFactor}>
                 {rec.explanation.basic && rec.explanation.basic !== 'Recommended based on your listening patterns.'
                   ? rec.explanation.basic
                   : rec.topFactor}
@@ -76,7 +76,10 @@ export function RecommendationList({ recommendations, detailLevel }: Recommendat
             </div>
             {isExpanded && (
               <div className={styles.expandedRow}>
-                <p className={styles.expandedExplanation}>{rec.explanation[detailLevel]}</p>
+                <p className={styles.expandedExplanation}>{rec.explanation.detailed || rec.explanation[detailLevel]}</p>
+                {detailLevel === 'technical' && rec.explanation.technical && rec.explanation.technical !== rec.explanation.detailed && (
+                  <p className={styles.expandedTechnical}>{rec.explanation.technical}</p>
+                )}
                 <FactorBreakdown factors={rec.decision.factors} />
               </div>
             )}

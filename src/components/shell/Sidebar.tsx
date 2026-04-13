@@ -6,6 +6,7 @@ import styles from './Sidebar.module.css';
 
 interface SidebarProps {
   activeTab: string;
+  onSelectPlaylist?: (playlist: { id: string; name: string; imageUrl: string | null; description: string }) => void;
 }
 
 const playlistColors = ['#1DB954', '#4a2c6e', '#2d6b4f', '#c44536', '#e8115b', '#5c4033'];
@@ -62,7 +63,7 @@ function getAlgorithmicExplanation(
   return `Made for you based on your taste in ${genreList} and artists like ${artistList}.`;
 }
 
-export function Sidebar({ activeTab }: SidebarProps) {
+export function Sidebar({ activeTab, onSelectPlaylist }: SidebarProps) {
   const { isAuthenticated, playlists: livePlaylists, topArtists } = useSpotify();
   const [tooltipId, setTooltipId] = useState<string | null>(null);
 
@@ -123,7 +124,23 @@ export function Sidebar({ activeTab }: SidebarProps) {
                 const algorithmic = isAlgorithmicPlaylist(playlist.name, playlist.ownerId);
                 const showTooltip = tooltipId === playlist.id;
                 return (
-                  <div key={playlist.id} className={styles.playlistItem}>
+                  <div
+                    key={playlist.id}
+                    className={styles.playlistItem}
+                    onClick={() => {
+                      if (onSelectPlaylist) {
+                        const explanation = algorithmic
+                          ? getAlgorithmicExplanation(playlist.name, topGenres, topArtistNames)
+                          : '';
+                        onSelectPlaylist({
+                          id: playlist.id,
+                          name: playlist.name,
+                          imageUrl: playlist.imageUrl,
+                          description: explanation,
+                        });
+                      }
+                    }}
+                  >
                     {playlist.imageUrl ? (
                       <img
                         src={playlist.imageUrl}

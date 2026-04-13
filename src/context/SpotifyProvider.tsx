@@ -3,6 +3,7 @@ import type { ReactNode } from 'react';
 import type { Track, Artist, Recommendation } from '../data/types';
 import type { SpotifyArtist, SpotifyTrack } from '../services/spotifyTypes';
 import { buildLiveRecommendation, mapSpotifyTrack, mapSpotifyArtist } from '../services/dataMappers';
+import type { ClaudeFactorInput } from '../services/dataMappers';
 import { usePlaybackSimulation } from '../hooks/usePlaybackSimulation';
 import { useSpotifyPlayer } from '../hooks/useSpotifyPlayer';
 import { SpotifyContext } from './SpotifyContext';
@@ -19,6 +20,7 @@ interface ThreeTierExplanation {
   basic: string;
   detailed: string;
   technical: string;
+  factors?: ClaudeFactorInput[];
 }
 
 const defaultExplanation: ThreeTierExplanation = {
@@ -85,6 +87,9 @@ export function SpotifyProvider({ children }: Props) {
   const [recentlyPlayed, setRecentlyPlayed] = useState<{ track: Track; playedAt: string }[]>([]);
   const [livePlaylists, setLivePlaylists] = useState<{ id: string; name: string; imageUrl: string | null; owner: string; ownerId: string; trackCount: number }[]>([]);
   const [explanations, setExplanations] = useState<Record<string, string>>({});
+  const [selectedPlaylist, setSelectedPlaylist] = useState<{ id: string; name: string; imageUrl: string | null; description: string } | null>(null);
+  const [playlistTracks, setPlaylistTracks] = useState<Recommendation[]>([]);
+  const [isLoadingPlaylist, setIsLoadingPlaylist] = useState(false);
 
   const mockPlayback = usePlaybackSimulation();
   const spotifyPlayer = useSpotifyPlayer(playbackToken);
@@ -234,6 +239,7 @@ export function SpotifyProvider({ children }: Props) {
                       basic: exp.basic ?? fallback.basic,
                       detailed: exp.detailed ?? fallback.detailed,
                       technical: exp.technical ?? fallback.technical,
+                      factors: Array.isArray(exp.factors) ? exp.factors : undefined,
                     },
                   };
                 }
@@ -265,6 +271,7 @@ export function SpotifyProvider({ children }: Props) {
             track,
             artistMap,
             tierExp,
+            tierExp.factors,
           );
         });
         setLiveRecommendations(recs);
@@ -299,6 +306,8 @@ export function SpotifyProvider({ children }: Props) {
     setRecentlyPlayed([]);
     setLivePlaylists([]);
     setExplanations({});
+    setSelectedPlaylist(null);
+    setPlaylistTracks([]);
   }, []);
 
   const refreshData = useCallback(async () => {
@@ -306,6 +315,92 @@ export function SpotifyProvider({ children }: Props) {
     await fetchAllData(true);
     setIsRefreshing(false);
   }, [fetchAllData]);
+
+  const selectPlaylist = useCallback(async (playlist: { id: string; name: string; imageUrl: string | null; description: string } | null) => {
+    if (!playlist) {
+      setSelectedPlaylist(null);
+      setPlaylistTracks([]);
+      return;
+    }
+
+    setSelectedPlaylist(playlist);
+    setIsLoadingPlaylist(true);
+
+    try {
+      const res = await fetch(`/api/spotify/playlists/${playlist.id}/tracks`);
+      if (!res.ok) {
+        setPlaylistTracks([]);
+        setIsLoadingPlaylist(false);
+        return;
+      }
+      const data = await res.json();
+      const items = data.items ?? [];
+
+      // Build recommendations from playlist tracks
+      const recs: Recommendation[] = items
+        .filter((item: { track: SpotifyTrack | null }) => item.track !== null)
+        .slice(0, 30)
+        .map((item: { track: SpotifyTrack; added_at?: string }, index: number) => {
+          const t = item.track;
+          const track = mapSpotifyTrack(t);
+          const artist = {
+            id: t.artists[0]?.id ?? '',
+            name: t.artists[0]?.name ?? '',
+            imageUrl: '',
+            isIndependent: false,
+            genres: [] as string[],
+            monthlyListeners: 0,
+          };
+          const album = {
+            id: t.album.id,
+            title: t.album.name,
+            artistId: t.artists[0]?.id ?? '',
+            coverUrl: t.album.images[0]?.url ?? '',
+            releaseYear: 0,
+            dominantColor: '#1a1a5e',
+          };
+
+          const why = `Added to "${playlist.name}" based on your listening`;
+
+          return {
+            track,
+            artist,
+            album,
+            decision: {
+              id: `playlist-${playlist.id}-track-${index}`,
+              type: 'playlist_curation' as const,
+              timestamp: item.added_at ?? new Date().toISOString(),
+              description: `Track in "${playlist.name}"`,
+              factors: [
+                { name: 'Playlist Fit', weight: 0.35, description: 'Matches the playlist theme' },
+                { name: 'Listening History', weight: 0.30, description: 'Based on your listening patterns' },
+                { name: 'Artist Affinity', weight: 0.20, description: 'Related to artists you enjoy' },
+                { name: 'Discovery', weight: 0.15, description: 'Expanding your musical horizons' },
+              ],
+              confidence: 0.80,
+              trackIds: [t.id],
+              explanationId: `playlist-exp-${playlist.id}-${index}`,
+            },
+            explanation: {
+              id: `playlist-exp-${playlist.id}-${index}`,
+              decisionId: `playlist-${playlist.id}-track-${index}`,
+              basic: why,
+              detailed: `"${t.name}" by ${t.artists[0]?.name ?? 'this artist'} was added to "${playlist.name}" because it fits the playlist's musical profile and your listening preferences.`,
+              technical: `Track "${t.name}" selected for playlist curation based on genre embedding similarity, collaborative filtering signals, and playlist coherence scoring.`,
+              disclosureBoundary: 'Playlist curation internals are proprietary.',
+              generatedAt: new Date().toISOString(),
+            },
+            topFactor: why,
+          };
+        });
+
+      setPlaylistTracks(recs);
+    } catch {
+      setPlaylistTracks([]);
+    }
+
+    setIsLoadingPlaylist(false);
+  }, []);
 
   const playback = useMemo((): SpotifyContextValue['playback'] => {
     if (isConnected && spotifyPlayer.isReady && spotifyPlayer.currentTrack) {
@@ -373,10 +468,15 @@ export function SpotifyProvider({ children }: Props) {
       playlists: livePlaylists,
       explanations,
       audioFeatures: {},
+      selectedPlaylist,
+      selectPlaylist,
+      playlistTracks,
+      isLoadingPlaylist,
     }),
     [
       isConnected, isLoading, isRefreshing, login, logout, refreshData, user, playback,
       liveRecommendations, liveTopTracks, liveTopArtists, recentlyPlayed, livePlaylists, explanations,
+      selectedPlaylist, selectPlaylist, playlistTracks, isLoadingPlaylist,
     ],
   );
 

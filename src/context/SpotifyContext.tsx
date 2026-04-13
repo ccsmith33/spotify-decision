@@ -37,6 +37,11 @@ export interface SpotifyContextValue {
   playlists: { id: string; name: string; imageUrl: string | null; owner: string; ownerId: string; trackCount: number }[];
   explanations: Record<string, string>;
   audioFeatures: Record<string, SpotifyAudioFeature>;
+
+  selectedPlaylist: { id: string; name: string; imageUrl: string | null; description: string } | null;
+  selectPlaylist: (playlist: { id: string; name: string; imageUrl: string | null; description: string } | null) => void;
+  playlistTracks: Recommendation[];
+  isLoadingPlaylist: boolean;
 }
 
 const SpotifyContext = createContext<SpotifyContextValue | null>(null);

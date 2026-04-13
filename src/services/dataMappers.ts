@@ -1,4 +1,4 @@
-import type { Track, Artist, Album, Recommendation } from '../data/types';
+import type { Track, Artist, Album, Recommendation, AlgorithmFactor } from '../data/types';
 import type { SpotifyTrack, SpotifyArtist } from './spotifyTypes';
 
 export function mapSpotifyTrack(st: SpotifyTrack): Track {
@@ -49,15 +49,26 @@ function seededRandom(seed: string): () => number {
 }
 
 function normalizeWeights(weights: number[]): number[] {
-  const sum = weights.reduce((s, w) => s + w, 0);
-  if (sum === 0) return weights.map(() => 1 / weights.length);
-  return weights.map(w => Math.round((w / sum) * 100) / 100);
+  // Guard against NaN, Infinity, and negative values
+  const safe = weights.map(w => (Number.isFinite(w) && w > 0) ? w : 0.02);
+  const sum = safe.reduce((s, w) => s + w, 0);
+  if (sum === 0) return safe.map(() => 1 / safe.length);
+  return safe.map(w => {
+    const normalized = Math.round((w / sum) * 100) / 100;
+    return Number.isFinite(normalized) ? normalized : 1 / safe.length;
+  });
+}
+
+export interface ClaudeFactorInput {
+  name: string;
+  weight: number;
 }
 
 export function buildLiveRecommendation(
   spotifyTrack: SpotifyTrack,
   spotifyArtists: Map<string, SpotifyArtist>,
   claudeExplanation: { basic: string; detailed: string; technical: string },
+  claudeFactors?: ClaudeFactorInput[],
 ): Recommendation {
   const track = mapSpotifyTrack(spotifyTrack);
   const artistId = spotifyTrack.artists[0]?.id ?? '';
@@ -74,44 +85,55 @@ export function buildLiveRecommendation(
       };
   const album = mapSpotifyAlbum(spotifyTrack);
 
-  const artistGenres = matchedArtist?.genres ?? [];
-  const isTopArtist = !!matchedArtist;
-  const popularity = spotifyTrack.popularity;
-  const popularityTier =
-    popularity >= 70 ? 'High' : popularity >= 40 ? 'Medium' : 'Niche';
-  const hasGenres = artistGenres.length > 0;
+  let factors: AlgorithmFactor[];
 
-  // --- Dynamic base weights ---
-  let genreW = hasGenres ? 0.30 : 0.10;
-  let artistW = isTopArtist ? 0.38 : 0.20;
-  let listeningW = 0.20;
-  let popularityW = 0.10 + (popularity / 100) * 0.10;   // 0.10 – 0.20
-  let recencyW = 0.10;
+  if (claudeFactors && claudeFactors.length > 0) {
+    // Use Claude-provided factors — normalize to ensure they sum to 1.0
+    const rawWeights = claudeFactors.map(f => (Number.isFinite(f.weight) && f.weight > 0) ? f.weight : 0.1);
+    const normalized = normalizeWeights(rawWeights);
+    factors = claudeFactors.map((f, i) => ({
+      name: f.name,
+      weight: normalized[i],
+      description: f.name,
+    }));
+  } else {
+    // Fallback: generate factors from track data
+    const artistGenres = matchedArtist?.genres ?? [];
+    const isTopArtist = !!matchedArtist;
+    const popularity = spotifyTrack.popularity;
+    const popularityTier =
+      popularity >= 70 ? 'High' : popularity >= 40 ? 'Medium' : 'Niche';
+    const hasGenres = artistGenres.length > 0;
 
-  // Redistribute weight removed from Genre Match when no genres
-  if (!hasGenres) {
-    listeningW += 0.10;
-    recencyW += 0.10;
+    let genreW = hasGenres ? 0.30 : 0.10;
+    let artistW = isTopArtist ? 0.38 : 0.20;
+    let listeningW = 0.20;
+    let popularityW = 0.10 + (popularity / 100) * 0.10;
+    let recencyW = 0.10;
+
+    if (!hasGenres) {
+      listeningW += 0.10;
+      recencyW += 0.10;
+    }
+
+    const rng = seededRandom(spotifyTrack.id);
+    const jitter = () => (rng() - 0.5) * 0.06;
+    genreW      = Math.max(0.02, genreW + jitter());
+    artistW     = Math.max(0.02, artistW + jitter());
+    listeningW  = Math.max(0.02, listeningW + jitter());
+    popularityW = Math.max(0.02, popularityW + jitter());
+    recencyW    = Math.max(0.02, recencyW + jitter());
+
+    const normalized = normalizeWeights([genreW, artistW, listeningW, popularityW, recencyW]);
+
+    factors = [
+      { name: 'Genre Match', weight: normalized[0], description: hasGenres ? `Genres: ${artistGenres.slice(0, 3).join(', ')}` : 'Recommended based on your listening patterns' },
+      { name: 'Artist Similarity', weight: normalized[1], description: isTopArtist ? 'One of your top artists' : 'Similar to artists you listen to' },
+      { name: 'Listening Frequency', weight: normalized[2], description: 'Based on your recent listening patterns' },
+      { name: 'Popularity', weight: normalized[3], description: `${popularityTier} popularity (${popularity}/100)` },
+      { name: 'Recency', weight: normalized[4], description: 'In your recent heavy rotation' },
+    ];
   }
-
-  // Add per-track jitter (+-0.03) so no two tracks are identical
-  const rng = seededRandom(spotifyTrack.id);
-  const jitter = () => (rng() - 0.5) * 0.06;          // -0.03..+0.03
-  genreW      = Math.max(0.02, genreW + jitter());
-  artistW     = Math.max(0.02, artistW + jitter());
-  listeningW  = Math.max(0.02, listeningW + jitter());
-  popularityW = Math.max(0.02, popularityW + jitter());
-  recencyW    = Math.max(0.02, recencyW + jitter());
-
-  const normalized = normalizeWeights([genreW, artistW, listeningW, popularityW, recencyW]);
-
-  const factors = [
-    { name: 'Genre Match', weight: normalized[0], description: hasGenres ? `Genres: ${artistGenres.slice(0, 3).join(', ')}` : 'Recommended based on your listening patterns' },
-    { name: 'Artist Similarity', weight: normalized[1], description: isTopArtist ? 'One of your top artists' : 'Similar to artists you listen to' },
-    { name: 'Listening Frequency', weight: normalized[2], description: 'Based on your recent listening patterns' },
-    { name: 'Popularity', weight: normalized[3], description: `${popularityTier} popularity (${popularity}/100)` },
-    { name: 'Recency', weight: normalized[4], description: 'In your recent heavy rotation' },
-  ];
 
   return {
     track,

@@ -55,14 +55,22 @@ export function buildExplanationPrompt(input: ExplanationInput): string {
 
   return `You are Spotify's algorithmic transparency feature. Explain why "${trackName}" by ${artistName} was recommended to this listener.
 
-Provide three tiers of explanation. Respond with ONLY valid JSON — no markdown, no code fences, no extra text. Use this exact structure:
+Provide three tiers of explanation AND custom factor categories. Respond with ONLY valid JSON — no markdown, no code fences, no extra text. Use this exact structure:
 
-{"basic":"...","detailed":"...","technical":"..."}
+{"basic":"...","detailed":"...","technical":"...","factors":[{"name":"...","weight":0.35},{"name":"...","weight":0.30},{"name":"...","weight":0.20},{"name":"...","weight":0.15}]}
 
 Tier rules:
 - basic: 1 casual sentence, no numbers or percentages. Mention "${trackName}" or "${artistName}" by name.
 - detailed: 2-3 sentences about listening patterns, artist connections, and genre alignment. Reference "${trackName}" and "${artistName}" specifically.
 - technical: Breakdown with genre overlap analysis, popularity metrics, listening frequency patterns, and artist similarity scoring
+
+Factor rules:
+- Choose 4-5 factor categories that are SPECIFIC to this track and listener
+- Do NOT use generic names like "Genre Match" or "Artist Similarity"
+- Use names that tell a story: "Indie Rock Affinity", "Late Night Listening Pattern", "Artist Loyalty Score", "Acoustic Preference", "Mood Matching", etc.
+- Make the factor names reflect the actual connection between this track and this listener's taste
+- Weights must sum to 1.0
+- Each weight must be between 0.05 and 0.50
 
 Each explanation must be UNIQUE. Do NOT use phrases like "fits right in", "matches your taste", or "right up your alley". Instead, reference SPECIFIC details about THIS track and THIS artist. Mention the track name and artist by name. Be conversational and specific.
 

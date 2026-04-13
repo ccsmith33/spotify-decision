@@ -349,6 +349,28 @@ app.get('/api/spotify/playlists', async (req, res) => {
   res.json(data);
 });
 
+app.get('/api/spotify/playlists/:id/tracks', async (req, res) => {
+  const token = await getFreshAccessToken();
+  if (!token) { res.status(401).json({ error: 'Not connected' }); return; }
+
+  const playlistId = req.params.id;
+  const cacheKey = `playlist-tracks-${playlistId}`;
+  if (!shouldBypassCache(req)) {
+    const cached = getCachedEntry(cacheKey);
+    if (cached) { console.log('[cache] HIT:', cacheKey); res.json(cached); return; }
+  }
+  console.log('[cache] MISS:', cacheKey);
+
+  const response = await fetch(
+    `${SPOTIFY_API_BASE}/playlists/${playlistId}/tracks?limit=30`,
+    { headers: { Authorization: `Bearer ${token}` } },
+  );
+  if (!response.ok) { res.status(response.status).json({ error: 'Spotify API error' }); return; }
+  const data = await response.json();
+  setCachedEntry(cacheKey, data);
+  res.json(data);
+});
+
 // Audio features endpoint is restricted (403) for new Spotify apps since Nov 2024.
 // Return an empty response so the frontend does not error.
 app.get('/api/spotify/audio-features/:ids', (_req, res) => {
@@ -362,7 +384,7 @@ app.get('/api/spotify/token', async (_req, res) => {
 });
 
 // --- Claude explanation cache (persists until server restart or manual refresh) ---
-const explanationCache: Record<string, { basic: string; detailed: string; technical: string }> = {};
+const explanationCache: Record<string, { basic: string; detailed: string; technical: string; factors?: { name: string; weight: number }[] }> = {};
 
 app.post('/api/explain', async (req, res) => {
   try {
@@ -414,11 +436,21 @@ app.post('/api/explain', async (req, res) => {
     let basic: string;
     let detailed: string;
     let technical: string;
+    let factors: { name: string; weight: number }[] | undefined;
     try {
       const parsed = JSON.parse(rawText);
       basic = parsed.basic ?? rawText;
       detailed = parsed.detailed ?? rawText;
       technical = parsed.technical ?? rawText;
+      if (Array.isArray(parsed.factors) && parsed.factors.length > 0) {
+        factors = parsed.factors
+          .filter((f: unknown) => f && typeof f === 'object' && 'name' in (f as Record<string, unknown>) && 'weight' in (f as Record<string, unknown>))
+          .map((f: { name: string; weight: number }) => ({
+            name: String(f.name),
+            weight: Number(f.weight) || 0.1,
+          }));
+        if (factors!.length === 0) factors = undefined;
+      }
     } catch {
       // Fallback: use raw text for all tiers
       basic = rawText;
@@ -426,7 +458,7 @@ app.post('/api/explain', async (req, res) => {
       technical = rawText;
     }
 
-    const result = { basic, detailed, technical };
+    const result = { basic, detailed, technical, factors };
     explanationCache[cacheKey] = result;
     res.json({ explanation: result });
   } catch (err: unknown) {
