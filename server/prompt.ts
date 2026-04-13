@@ -38,15 +38,25 @@ Audio profile of this track:
     reasonSection = `\nMatch signals: ${matchReasons.join('; ')}`;
   }
 
-  return `You are Spotify's algorithmic transparency feature. Write a brief, friendly explanation (3-4 sentences) of why "${trackName}" by ${artistName} was recommended to this listener.
+  return `You are Spotify's algorithmic transparency feature. Explain why "${trackName}" by ${artistName} was recommended to this listener.
 
-Reference specific audio characteristics and listening patterns in your explanation. Sound like a knowledgeable music friend, not a robot. Use second person ("you" / "your").
+Provide three tiers of explanation. Respond with ONLY valid JSON — no markdown, no code fences, no extra text. Use this exact structure:
+
+{"basic":"...","detailed":"...","technical":"..."}
+
+Tier rules:
+- basic: 1 casual sentence, no numbers or percentages (e.g. "Matches your indie rock taste")
+- detailed: 2-3 sentences referencing specific factors and genres from the data below
+- technical: Full breakdown with audio feature percentages, BPM, genre overlap scores from the data below
+
+Use second person ("you" / "your"). Sound like a knowledgeable music friend, not a robot.
 ${audioSection}${genreSection}${reasonSection}
 
 Rules:
-- Do NOT use markdown, bullet points, or headers
+- Respond with ONLY the JSON object, nothing else
+- Do NOT wrap in markdown code fences
 - Do NOT start with "We recommended" or "This track was recommended"
-- DO start with a concrete observation about the music or the listener's taste
-- Keep it under 60 words
-- Sound like it belongs in the Spotify app`;
+- basic must be under 15 words
+- detailed must be under 60 words
+- technical must be under 100 words`;
 }

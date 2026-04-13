@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { RefreshCw } from 'lucide-react';
 import type { DetailLevel, AppealFormData } from '../../data/types';
 import { decisions, explanations } from '../../data/decisions';
 import { fairnessAudits } from '../../data/fairness';
@@ -23,7 +24,7 @@ interface DemoPageProps {
 export function DemoPage({ detailLevel, onDetailLevelChange }: DemoPageProps) {
   const [glossaryExpanded, setGlossaryExpanded] = useState(false);
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
-  const { recommendations, isLoading, isAuthenticated } = useSpotify();
+  const { recommendations, isLoading, isRefreshing, isAuthenticated, refreshData } = useSpotify();
 
   const decisionCardData = [
     { decision: decisions[0], explanation: explanations[0] },
@@ -38,6 +39,20 @@ export function DemoPage({ detailLevel, onDetailLevelChange }: DemoPageProps) {
   return (
     <div className={styles.page}>
       <HeroSection />
+
+      {isAuthenticated && (
+        <div className={styles.refreshContainer}>
+          <button
+            className={styles.refreshButton}
+            onClick={refreshData}
+            disabled={isRefreshing || isLoading}
+            aria-label="Refresh recommendations"
+          >
+            <RefreshCw size={16} className={isRefreshing ? styles.refreshSpinning : ''} />
+            {isRefreshing ? 'Refreshing...' : 'Refresh Recommendations'}
+          </button>
+        </div>
+      )}
 
       <GlossaryPanel
         terms={glossaryTerms}

@@ -6,8 +6,10 @@ export interface SpotifyContextValue {
   isAuthenticated: boolean;
   isConnected: boolean;
   isLoading: boolean;
+  isRefreshing: boolean;
   login: () => Promise<void>;
   logout: () => void;
+  refreshData: () => Promise<void>;
 
   user: {
     displayName: string;

@@ -38,7 +38,7 @@ export function buildLiveRecommendation(
   spotifyTrack: SpotifyTrack,
   spotifyArtists: Map<string, SpotifyArtist>,
   audioFeature: SpotifyAudioFeature | undefined,
-  claudeExplanation: string,
+  claudeExplanation: { basic: string; detailed: string; technical: string },
 ): Recommendation {
   const track = mapSpotifyTrack(spotifyTrack);
   const artistId = spotifyTrack.artists[0]?.id ?? '';
@@ -87,9 +87,9 @@ export function buildLiveRecommendation(
     explanation: {
       id: `live-explanation-${spotifyTrack.id}`,
       decisionId: `live-decision-${spotifyTrack.id}`,
-      basic: claudeExplanation,
-      detailed: claudeExplanation,
-      technical: claudeExplanation,
+      basic: claudeExplanation.basic,
+      detailed: claudeExplanation.detailed,
+      technical: claudeExplanation.technical,
       disclosureBoundary:
         'Exact collaborative filtering weights and neural network internals are proprietary.',
       generatedAt: new Date().toISOString(),

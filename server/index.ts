@@ -11,7 +11,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
-const PORT = 80;
+const PORT = process.env.PORT ? parseInt(process.env.PORT) : 3000;
 const CLAUDE_TIMEOUT_MS = 30_000;
 
 // --- Spotify config ---
@@ -22,6 +22,14 @@ const SPOTIFY_AUTH_URL = 'https://accounts.spotify.com/authorize';
 const SPOTIFY_TOKEN_URL = 'https://accounts.spotify.com/api/token';
 const SPOTIFY_API_BASE = 'https://api.spotify.com/v1';
 const TOKEN_FILE = path.join(__dirname, '.spotify-token');
+
+// --- Spotify data cache ---
+const CACHE_TTL_MS = 86_400_000; // 24 hours
+const cache: { data: Record<string, unknown> | null; timestamp: number } = { data: null, timestamp: 0 };
+
+function isCacheValid(): boolean {
+  return cache.data !== null && Date.now() - cache.timestamp < CACHE_TTL_MS;
+}
 
 const SCOPES = [
   'user-read-private',
@@ -150,16 +158,43 @@ app.get('/callback', async (req, res) => {
   }
 });
 
-// --- Spotify proxy routes ---
-app.get('/api/spotify/me', async (_req, res) => {
+// --- Spotify proxy routes (with caching) ---
+
+function shouldBypassCache(req: express.Request): boolean {
+  return req.query.refresh === 'true';
+}
+
+function getCachedEntry(key: string): unknown | undefined {
+  if (!isCacheValid() || !cache.data) return undefined;
+  return cache.data[key];
+}
+
+function setCachedEntry(key: string, value: unknown): void {
+  if (!cache.data || !isCacheValid()) {
+    cache.data = {};
+    cache.timestamp = Date.now();
+  }
+  cache.data[key] = value;
+}
+
+app.get('/api/spotify/me', async (req, res) => {
   const token = await getFreshAccessToken();
   if (!token) { res.status(401).json({ error: 'Not connected' }); return; }
+
+  const cacheKey = 'me';
+  if (!shouldBypassCache(req)) {
+    const cached = getCachedEntry(cacheKey);
+    if (cached) { console.log('[cache] HIT:', cacheKey); res.json(cached); return; }
+  }
+  console.log('[cache] MISS:', cacheKey);
 
   const response = await fetch(`${SPOTIFY_API_BASE}/me`, {
     headers: { Authorization: `Bearer ${token}` },
   });
   if (!response.ok) { res.status(response.status).json({ error: 'Spotify API error' }); return; }
-  res.json(await response.json());
+  const data = await response.json();
+  setCachedEntry(cacheKey, data);
+  res.json(data);
 });
 
 app.get('/api/spotify/top-tracks', async (req, res) => {
@@ -167,12 +202,21 @@ app.get('/api/spotify/top-tracks', async (req, res) => {
   if (!token) { res.status(401).json({ error: 'Not connected' }); return; }
 
   const timeRange = req.query.time_range ?? 'medium_term';
+  const cacheKey = `top-tracks-${timeRange}`;
+  if (!shouldBypassCache(req)) {
+    const cached = getCachedEntry(cacheKey);
+    if (cached) { console.log('[cache] HIT:', cacheKey); res.json(cached); return; }
+  }
+  console.log('[cache] MISS:', cacheKey);
+
   const response = await fetch(
     `${SPOTIFY_API_BASE}/me/top/tracks?time_range=${timeRange}&limit=20`,
     { headers: { Authorization: `Bearer ${token}` } },
   );
   if (!response.ok) { res.status(response.status).json({ error: 'Spotify API error' }); return; }
-  res.json(await response.json());
+  const data = await response.json();
+  setCachedEntry(cacheKey, data);
+  res.json(data);
 });
 
 app.get('/api/spotify/top-artists', async (req, res) => {
@@ -180,24 +224,42 @@ app.get('/api/spotify/top-artists', async (req, res) => {
   if (!token) { res.status(401).json({ error: 'Not connected' }); return; }
 
   const timeRange = req.query.time_range ?? 'medium_term';
+  const cacheKey = `top-artists-${timeRange}`;
+  if (!shouldBypassCache(req)) {
+    const cached = getCachedEntry(cacheKey);
+    if (cached) { console.log('[cache] HIT:', cacheKey); res.json(cached); return; }
+  }
+  console.log('[cache] MISS:', cacheKey);
+
   const response = await fetch(
     `${SPOTIFY_API_BASE}/me/top/artists?time_range=${timeRange}&limit=20`,
     { headers: { Authorization: `Bearer ${token}` } },
   );
   if (!response.ok) { res.status(response.status).json({ error: 'Spotify API error' }); return; }
-  res.json(await response.json());
+  const data = await response.json();
+  setCachedEntry(cacheKey, data);
+  res.json(data);
 });
 
-app.get('/api/spotify/recently-played', async (_req, res) => {
+app.get('/api/spotify/recently-played', async (req, res) => {
   const token = await getFreshAccessToken();
   if (!token) { res.status(401).json({ error: 'Not connected' }); return; }
+
+  const cacheKey = 'recently-played';
+  if (!shouldBypassCache(req)) {
+    const cached = getCachedEntry(cacheKey);
+    if (cached) { console.log('[cache] HIT:', cacheKey); res.json(cached); return; }
+  }
+  console.log('[cache] MISS:', cacheKey);
 
   const response = await fetch(
     `${SPOTIFY_API_BASE}/me/player/recently-played?limit=20`,
     { headers: { Authorization: `Bearer ${token}` } },
   );
   if (!response.ok) { res.status(response.status).json({ error: 'Spotify API error' }); return; }
-  res.json(await response.json());
+  const data = await response.json();
+  setCachedEntry(cacheKey, data);
+  res.json(data);
 });
 
 app.get('/api/spotify/recommendations', async (req, res) => {
@@ -210,24 +272,42 @@ app.get('/api/spotify/recommendations', async (req, res) => {
   if (req.query.seed_genres) query.set('seed_genres', req.query.seed_genres as string);
   query.set('limit', (req.query.limit as string) ?? '10');
 
+  const cacheKey = `recommendations-${query.toString()}`;
+  if (!shouldBypassCache(req)) {
+    const cached = getCachedEntry(cacheKey);
+    if (cached) { console.log('[cache] HIT:', cacheKey); res.json(cached); return; }
+  }
+  console.log('[cache] MISS:', cacheKey);
+
   const response = await fetch(
     `${SPOTIFY_API_BASE}/recommendations?${query.toString()}`,
     { headers: { Authorization: `Bearer ${token}` } },
   );
   if (!response.ok) { res.status(response.status).json({ error: 'Spotify API error' }); return; }
-  res.json(await response.json());
+  const data = await response.json();
+  setCachedEntry(cacheKey, data);
+  res.json(data);
 });
 
 app.get('/api/spotify/audio-features/:ids', async (req, res) => {
   const token = await getFreshAccessToken();
   if (!token) { res.status(401).json({ error: 'Not connected' }); return; }
 
+  const cacheKey = `audio-features-${req.params.ids}`;
+  if (!shouldBypassCache(req)) {
+    const cached = getCachedEntry(cacheKey);
+    if (cached) { console.log('[cache] HIT:', cacheKey); res.json(cached); return; }
+  }
+  console.log('[cache] MISS:', cacheKey);
+
   const response = await fetch(
     `${SPOTIFY_API_BASE}/audio-features?ids=${req.params.ids}`,
     { headers: { Authorization: `Bearer ${token}` } },
   );
   if (!response.ok) { res.status(response.status).json({ error: 'Spotify API error' }); return; }
-  res.json(await response.json());
+  const data = await response.json();
+  setCachedEntry(cacheKey, data);
+  res.json(data);
 });
 
 app.get('/api/spotify/token', async (_req, res) => {
@@ -263,13 +343,29 @@ app.post('/api/explain', async (req, res) => {
       console.warn('Claude CLI stderr:', stderr);
     }
 
-    const explanation = stdout.trim();
-    if (!explanation) {
+    const rawText = stdout.trim();
+    if (!rawText) {
       res.status(502).json({ error: 'Claude returned empty response' });
       return;
     }
 
-    res.json({ explanation });
+    // Try to parse three-tier JSON response
+    let basic: string;
+    let detailed: string;
+    let technical: string;
+    try {
+      const parsed = JSON.parse(rawText);
+      basic = parsed.basic ?? rawText;
+      detailed = parsed.detailed ?? rawText;
+      technical = parsed.technical ?? rawText;
+    } catch {
+      // Fallback: use raw text for all tiers
+      basic = rawText;
+      detailed = rawText;
+      technical = rawText;
+    }
+
+    res.json({ explanation: { basic, detailed, technical } });
   } catch (err: unknown) {
     const error = err as Error & { killed?: boolean; code?: string | number; signal?: string };
 
