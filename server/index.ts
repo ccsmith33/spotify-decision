@@ -263,52 +263,60 @@ app.get('/api/spotify/recently-played', async (req, res) => {
   res.json(data);
 });
 
-app.get('/api/spotify/recommendations', async (req, res) => {
+app.get('/api/spotify/for-you', async (req, res) => {
   const token = await getFreshAccessToken();
   if (!token) { res.status(401).json({ error: 'Not connected' }); return; }
 
-  const query = new URLSearchParams();
-  if (req.query.seed_tracks) query.set('seed_tracks', req.query.seed_tracks as string);
-  if (req.query.seed_artists) query.set('seed_artists', req.query.seed_artists as string);
-  if (req.query.seed_genres) query.set('seed_genres', req.query.seed_genres as string);
-  query.set('limit', (req.query.limit as string) ?? '10');
-
-  const cacheKey = `recommendations-${query.toString()}`;
+  const cacheKey = 'for-you';
   if (!shouldBypassCache(req)) {
     const cached = getCachedEntry(cacheKey);
     if (cached) { console.log('[cache] HIT:', cacheKey); res.json(cached); return; }
   }
   console.log('[cache] MISS:', cacheKey);
 
-  const response = await fetch(
-    `${SPOTIFY_API_BASE}/recommendations?${query.toString()}`,
-    { headers: { Authorization: `Bearer ${token}` } },
-  );
-  if (!response.ok) { res.status(response.status).json({ error: 'Spotify API error' }); return; }
-  const data = await response.json();
+  // Fetch short-term top tracks and recently played in parallel
+  const [topRes, recentRes] = await Promise.all([
+    fetch(`${SPOTIFY_API_BASE}/me/top/tracks?time_range=short_term&limit=20`, {
+      headers: { Authorization: `Bearer ${token}` },
+    }),
+    fetch(`${SPOTIFY_API_BASE}/me/player/recently-played?limit=20`, {
+      headers: { Authorization: `Bearer ${token}` },
+    }),
+  ]);
+
+  const tracks: unknown[] = [];
+  const seenIds = new Set<string>();
+
+  if (topRes.ok) {
+    const topData = await topRes.json();
+    for (const track of topData.items ?? []) {
+      if (!seenIds.has(track.id)) {
+        seenIds.add(track.id);
+        tracks.push(track);
+      }
+    }
+  }
+
+  if (recentRes.ok) {
+    const recentData = await recentRes.json();
+    for (const item of recentData.items ?? []) {
+      if (item.track && !seenIds.has(item.track.id)) {
+        seenIds.add(item.track.id);
+        tracks.push(item.track);
+      }
+    }
+  }
+
+  // Return in the same shape as the old recommendations endpoint
+  const data = { tracks: tracks.slice(0, 20) };
   setCachedEntry(cacheKey, data);
   res.json(data);
 });
 
-app.get('/api/spotify/audio-features/:ids', async (req, res) => {
-  const token = await getFreshAccessToken();
-  if (!token) { res.status(401).json({ error: 'Not connected' }); return; }
-
-  const cacheKey = `audio-features-${req.params.ids}`;
-  if (!shouldBypassCache(req)) {
-    const cached = getCachedEntry(cacheKey);
-    if (cached) { console.log('[cache] HIT:', cacheKey); res.json(cached); return; }
-  }
-  console.log('[cache] MISS:', cacheKey);
-
-  const response = await fetch(
-    `${SPOTIFY_API_BASE}/audio-features?ids=${req.params.ids}`,
-    { headers: { Authorization: `Bearer ${token}` } },
-  );
-  if (!response.ok) { res.status(response.status).json({ error: 'Spotify API error' }); return; }
-  const data = await response.json();
-  setCachedEntry(cacheKey, data);
-  res.json(data);
+// Audio features endpoint is restricted (403) for new Spotify apps since Nov 2024.
+// Return an empty response so the frontend does not error.
+app.get('/api/spotify/audio-features/:ids', (_req, res) => {
+  res.json({ audio_features: [] });
 });
 
 app.get('/api/spotify/token', async (_req, res) => {
@@ -320,7 +328,7 @@ app.get('/api/spotify/token', async (_req, res) => {
 // --- Claude explanation endpoint ---
 app.post('/api/explain', async (req, res) => {
   try {
-    const { trackName, artistName, audioFeatures, userTopGenres, matchReasons } = req.body;
+    const { trackName, artistName, userTopGenres, userTopArtists, popularity, matchReasons } = req.body;
 
     if (!trackName || !artistName) {
       res.status(400).json({ error: 'trackName and artistName are required' });
@@ -330,8 +338,9 @@ app.post('/api/explain', async (req, res) => {
     const prompt = buildExplanationPrompt({
       trackName,
       artistName,
-      audioFeatures,
       userTopGenres,
+      userTopArtists,
+      popularity,
       matchReasons,
     });
 

@@ -1,5 +1,5 @@
 import type { Track, Artist, Album, Recommendation } from '../data/types';
-import type { SpotifyTrack, SpotifyArtist, SpotifyAudioFeature } from './spotifyTypes';
+import type { SpotifyTrack, SpotifyArtist } from './spotifyTypes';
 
 export function mapSpotifyTrack(st: SpotifyTrack): Track {
   return {
@@ -37,13 +37,13 @@ export function mapSpotifyAlbum(st: SpotifyTrack): Album {
 export function buildLiveRecommendation(
   spotifyTrack: SpotifyTrack,
   spotifyArtists: Map<string, SpotifyArtist>,
-  audioFeature: SpotifyAudioFeature | undefined,
   claudeExplanation: { basic: string; detailed: string; technical: string },
 ): Recommendation {
   const track = mapSpotifyTrack(spotifyTrack);
   const artistId = spotifyTrack.artists[0]?.id ?? '';
-  const artist = spotifyArtists.has(artistId)
-    ? mapSpotifyArtist(spotifyArtists.get(artistId)!)
+  const matchedArtist = spotifyArtists.get(artistId);
+  const artist = matchedArtist
+    ? mapSpotifyArtist(matchedArtist)
     : {
         id: artistId,
         name: spotifyTrack.artists[0]?.name ?? '',
@@ -54,21 +54,17 @@ export function buildLiveRecommendation(
       };
   const album = mapSpotifyAlbum(spotifyTrack);
 
-  const factors = audioFeature
-    ? [
-        { name: 'Listening History', weight: 0.35, description: 'Based on your past listening patterns' },
-        {
-          name: 'Audio Features',
-          weight: 0.25,
-          description: `Energy ${(audioFeature.energy * 100).toFixed(0)}%, Danceability ${(audioFeature.danceability * 100).toFixed(0)}%`,
-        },
-        { name: 'Collaborative Filtering', weight: 0.20, description: 'Similar listeners also enjoy this' },
-        { name: 'Genre Match', weight: 0.15, description: 'Matches genres in your library' },
-        { name: 'Recency', weight: 0.05, description: 'Release timing and trending factor' },
-      ]
-    : [];
+  const artistGenres = matchedArtist?.genres ?? [];
+  const popularityTier =
+    spotifyTrack.popularity >= 70 ? 'High' : spotifyTrack.popularity >= 40 ? 'Medium' : 'Niche';
 
-  const topFactor = factors.length > 0 ? factors[0].description : 'Recommended for you';
+  const factors = [
+    { name: 'Genre Match', weight: 0.30, description: artistGenres.length > 0 ? `Genres: ${artistGenres.slice(0, 3).join(', ')}` : 'Matches genres in your library' },
+    { name: 'Artist Similarity', weight: 0.25, description: matchedArtist ? 'One of your top artists' : 'Similar to artists you listen to' },
+    { name: 'Listening Frequency', weight: 0.20, description: 'Based on your recent listening patterns' },
+    { name: 'Popularity', weight: 0.15, description: `${popularityTier} popularity (${spotifyTrack.popularity}/100)` },
+    { name: 'Recency', weight: 0.10, description: 'In your recent heavy rotation' },
+  ];
 
   return {
     track,
@@ -94,6 +90,6 @@ export function buildLiveRecommendation(
         'Exact collaborative filtering weights and neural network internals are proprietary.',
       generatedAt: new Date().toISOString(),
     },
-    topFactor,
+    topFactor: factors[0].description,
   };
 }

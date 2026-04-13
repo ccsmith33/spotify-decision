@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo } from 'react';
 import type { ReactNode } from 'react';
 import type { Track, Artist, Recommendation } from '../data/types';
-import type { SpotifyAudioFeature, SpotifyArtist, SpotifyTrack } from '../services/spotifyTypes';
+import type { SpotifyArtist, SpotifyTrack } from '../services/spotifyTypes';
 import { buildLiveRecommendation, mapSpotifyTrack, mapSpotifyArtist } from '../services/dataMappers';
 import { usePlaybackSimulation } from '../hooks/usePlaybackSimulation';
 import { useSpotifyPlayer } from '../hooks/useSpotifyPlayer';
@@ -38,7 +38,6 @@ export function SpotifyProvider({ children }: Props) {
   const [liveTopTracks, setLiveTopTracks] = useState<Track[]>([]);
   const [liveTopArtists, setLiveTopArtists] = useState<Artist[]>([]);
   const [explanations, setExplanations] = useState<Record<string, string>>({});
-  const [audioFeatures, setAudioFeatures] = useState<Record<string, SpotifyAudioFeature>>({});
 
   const mockPlayback = usePlaybackSimulation();
   const spotifyPlayer = useSpotifyPlayer(playbackToken);
@@ -87,51 +86,24 @@ export function SpotifyProvider({ children }: Props) {
         setLiveTopArtists(topArtistsRes.items.map((a: SpotifyArtist) => mapSpotifyArtist(a)));
       }
 
-      // Build recommendation seeds
-      const seedTracks = topTracksRes?.items?.slice(0, 2).map((t: SpotifyTrack) => t.id) ?? [];
-      const seedArtists = topArtistsRes?.items?.slice(0, 2).map((a: SpotifyArtist) => a.id) ?? [];
+      // Collect genre and artist info from top artists
       const topGenres: string[] = topArtistsRes?.items?.flatMap((a: SpotifyArtist) => a.genres).slice(0, 5) ?? [];
       const uniqueGenres = [...new Set(topGenres)];
+      const topArtistNames: string[] = topArtistsRes?.items?.map((a: SpotifyArtist) => a.name).slice(0, 5) ?? [];
 
-      // Fetch recommendations
+      // Fetch personalized "for you" tracks (top tracks + recently played)
       let recTracks: SpotifyTrack[] = [];
       try {
-        const recParams = new URLSearchParams();
-        if (seedTracks.length) recParams.set('seed_tracks', seedTracks.join(','));
-        if (seedArtists.length) recParams.set('seed_artists', seedArtists.join(','));
-        if (uniqueGenres.length) recParams.set('seed_genres', uniqueGenres.slice(0, 1).join(','));
-        recParams.set('limit', '10');
-        if (forceRefresh) recParams.set('refresh', 'true');
-
-        const recRes = await fetch(`/api/spotify/recommendations?${recParams.toString()}`);
-        if (recRes.ok) {
-          const recData = await recRes.json();
-          recTracks = recData.tracks ?? [];
+        const forYouRes = await fetch(`/api/spotify/for-you${refreshParam}`);
+        if (forYouRes.ok) {
+          const forYouData = await forYouRes.json();
+          recTracks = (forYouData.tracks ?? []).slice(0, 10);
         }
       } catch {
         // Fall back to mock recommendations
       }
 
       if (recTracks.length > 0) {
-        // Fetch audio features
-        let features: SpotifyAudioFeature[] = [];
-        try {
-          const ids = recTracks.map(t => t.id).join(',');
-          const afRes = await fetch(`/api/spotify/audio-features/${ids}${refreshParam}`);
-          if (afRes.ok) {
-            const afData = await afRes.json();
-            features = (afData.audio_features ?? []).filter(Boolean);
-          }
-        } catch {
-          // Continue without audio features
-        }
-
-        const featureMap: Record<string, SpotifyAudioFeature> = {};
-        for (const f of features) {
-          if (f) featureMap[f.id] = f;
-        }
-        setAudioFeatures(featureMap);
-
         // Build artist map
         const artistMap = new Map<string, SpotifyArtist>();
         if (topArtistsRes?.items) {
@@ -140,10 +112,9 @@ export function SpotifyProvider({ children }: Props) {
           }
         }
 
-        // Fetch Claude explanations in parallel (now three-tier)
+        // Fetch Claude explanations in parallel (three-tier)
         const explanationResults = await Promise.allSettled(
           recTracks.map(async (track: SpotifyTrack) => {
-            const af = featureMap[track.id];
             try {
               const response = await fetch('/api/explain', {
                 method: 'POST',
@@ -151,24 +122,15 @@ export function SpotifyProvider({ children }: Props) {
                 body: JSON.stringify({
                   trackName: track.name,
                   artistName: track.artists[0]?.name ?? '',
-                  audioFeatures: af
-                    ? {
-                        danceability: af.danceability,
-                        energy: af.energy,
-                        valence: af.valence,
-                        tempo: af.tempo,
-                        acousticness: af.acousticness,
-                        instrumentalness: af.instrumentalness,
-                      }
-                    : undefined,
                   userTopGenres: uniqueGenres,
-                  matchReasons: ['Based on your listening history', 'Similar listeners also enjoy this'],
+                  userTopArtists: topArtistNames,
+                  popularity: track.popularity,
+                  matchReasons: ['Based on your listening history', 'In your recent heavy rotation'],
                 }),
               });
               if (response.ok) {
                 const data = await response.json();
                 const exp = data.explanation;
-                // Handle both old (string) and new (object) response formats
                 if (typeof exp === 'string') {
                   return { trackId: track.id, explanation: { basic: exp, detailed: exp, technical: exp } };
                 }
@@ -204,7 +166,6 @@ export function SpotifyProvider({ children }: Props) {
           return buildLiveRecommendation(
             track,
             artistMap,
-            featureMap[track.id],
             tierExp,
           );
         });
@@ -238,7 +199,6 @@ export function SpotifyProvider({ children }: Props) {
     setLiveTopTracks([]);
     setLiveTopArtists([]);
     setExplanations({});
-    setAudioFeatures({});
   }, []);
 
   const refreshData = useCallback(async () => {
@@ -310,11 +270,11 @@ export function SpotifyProvider({ children }: Props) {
       topTracks: isConnected && liveTopTracks.length > 0 ? liveTopTracks : mockTracks,
       topArtists: liveTopArtists,
       explanations,
-      audioFeatures,
+      audioFeatures: {},
     }),
     [
       isConnected, isLoading, isRefreshing, login, logout, refreshData, user, playback,
-      liveRecommendations, liveTopTracks, liveTopArtists, explanations, audioFeatures,
+      liveRecommendations, liveTopTracks, liveTopArtists, explanations,
     ],
   );
 

@@ -1,36 +1,28 @@
 interface ExplanationInput {
   trackName: string;
   artistName: string;
-  audioFeatures?: {
-    danceability: number;
-    energy: number;
-    valence: number;
-    tempo: number;
-    acousticness: number;
-    instrumentalness: number;
-  };
   userTopGenres?: string[];
+  userTopArtists?: string[];
+  popularity?: number;
   matchReasons?: string[];
 }
 
 export function buildExplanationPrompt(input: ExplanationInput): string {
-  const { trackName, artistName, audioFeatures, userTopGenres, matchReasons } = input;
-
-  let audioSection = '';
-  if (audioFeatures) {
-    audioSection = `
-Audio profile of this track:
-- Danceability: ${(audioFeatures.danceability * 100).toFixed(0)}%
-- Energy: ${(audioFeatures.energy * 100).toFixed(0)}%
-- Positivity (valence): ${(audioFeatures.valence * 100).toFixed(0)}%
-- Tempo: ${audioFeatures.tempo.toFixed(0)} BPM
-- Acousticness: ${(audioFeatures.acousticness * 100).toFixed(0)}%
-- Instrumentalness: ${(audioFeatures.instrumentalness * 100).toFixed(0)}%`;
-  }
+  const { trackName, artistName, userTopGenres, userTopArtists, popularity, matchReasons } = input;
 
   let genreSection = '';
   if (userTopGenres && userTopGenres.length > 0) {
     genreSection = `\nYour most-listened genres: ${userTopGenres.slice(0, 5).join(', ')}`;
+  }
+
+  let artistSection = '';
+  if (userTopArtists && userTopArtists.length > 0) {
+    artistSection = `\nYour top artists: ${userTopArtists.slice(0, 5).join(', ')}`;
+  }
+
+  let popularitySection = '';
+  if (popularity !== undefined) {
+    popularitySection = `\nTrack popularity score: ${popularity}/100`;
   }
 
   let reasonSection = '';
@@ -46,11 +38,13 @@ Provide three tiers of explanation. Respond with ONLY valid JSON — no markdown
 
 Tier rules:
 - basic: 1 casual sentence, no numbers or percentages (e.g. "Matches your indie rock taste")
-- detailed: 2-3 sentences referencing specific factors and genres from the data below
-- technical: Full breakdown with audio feature percentages, BPM, genre overlap scores from the data below
+- detailed: 2-3 sentences about listening patterns, artist connections, and genre alignment
+- technical: Breakdown with genre overlap analysis, popularity metrics, listening frequency patterns, and artist similarity scoring
 
 Use second person ("you" / "your"). Sound like a knowledgeable music friend, not a robot.
-${audioSection}${genreSection}${reasonSection}
+${genreSection}${artistSection}${popularitySection}${reasonSection}
+
+Context: This track has been in the listener's heavy rotation recently, surfaced from their top tracks and recent listening history.
 
 Rules:
 - Respond with ONLY the JSON object, nothing else
