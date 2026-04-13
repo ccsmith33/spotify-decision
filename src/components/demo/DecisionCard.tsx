@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { ListMusic, Radio, Disc3 } from 'lucide-react';
 import type { AlgorithmDecision, Explanation, DetailLevel } from '../../data/types';
 import { FactorBreakdown } from './FactorBreakdown';
@@ -25,12 +26,22 @@ const typeLabels: Record<AlgorithmDecision['type'], string> = {
   search_ranking: 'Search Ranking',
 };
 
+const typeColors: Record<AlgorithmDecision['type'], string> = {
+  playlist_curation: '#1DB954',
+  song_radio: '#1e90ff',
+  discover_weekly: '#e8115b',
+  home_feed: '#ffa42b',
+  search_ranking: '#b3b3b3',
+};
+
 export function DecisionCard({ decision, explanation, detailLevel }: DecisionCardProps) {
+  const [expanded, setExpanded] = useState(false);
   const Icon = typeIcons[decision.type];
+  const accentColor = typeColors[decision.type];
   const explanationText = explanation[detailLevel];
 
   return (
-    <div className={styles.card}>
+    <div className={styles.card} style={{ borderLeftColor: accentColor }}>
       <div className={styles.cardHeader}>
         <div className={styles.icon}>
           <Icon size={20} />
@@ -40,11 +51,22 @@ export function DecisionCard({ decision, explanation, detailLevel }: DecisionCar
 
       <h3 className={styles.cardTitle}>{decision.description}</h3>
 
-      <p className={styles.explanation}>{explanationText}</p>
+      <p className={expanded ? styles.explanation : styles.explanationClamped}>
+        {explanationText}
+      </p>
+      <button
+        type="button"
+        className={styles.showMore}
+        onClick={() => setExpanded(prev => !prev)}
+      >
+        {expanded ? 'Show less' : 'See details'}
+      </button>
 
       <FactorBreakdown factors={decision.factors} />
 
-      <div className={styles.boundary}>{explanation.disclosureBoundary}</div>
+      {expanded && (
+        <div className={styles.boundary}>{explanation.disclosureBoundary}</div>
+      )}
 
       <div className={styles.confidence}>
         <span>Confidence</span>

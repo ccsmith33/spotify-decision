@@ -292,8 +292,18 @@ describe('Demo Components', () => {
       expect(screen.getByText('Your Previous Appeals')).toBeInTheDocument();
     });
 
+    it('disables submit button when required fields are empty', () => {
+      render(<AppealSection existingAppeals={appeals} onSubmit={() => {}} />);
+      const button = screen.getByText('Submit Appeal') as HTMLButtonElement;
+      expect(button.disabled).toBe(true);
+    });
+
     it('shows success message on form submit', () => {
       render(<AppealSection existingAppeals={appeals} onSubmit={() => {}} />);
+      const descriptionField = screen.getByPlaceholderText(/Explain what happened/);
+      const outcomeField = screen.getByPlaceholderText(/Describe the change/);
+      fireEvent.change(descriptionField, { target: { value: 'Test description' } });
+      fireEvent.change(outcomeField, { target: { value: 'Test outcome' } });
       fireEvent.click(screen.getByText('Submit Appeal'));
       expect(screen.getByText(/Appeal submitted successfully/)).toBeInTheDocument();
     });

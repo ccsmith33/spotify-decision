@@ -20,6 +20,7 @@
   font-size: var(--font-size-2xl);
   font-weight: var(--font-weight-bold);
   color: var(--text-primary);
+  letter-spacing: -0.5px;
   margin-bottom: var(--spacing-md);
   line-height: 1.1;
 }

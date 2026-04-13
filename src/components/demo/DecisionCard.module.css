@@ -2,6 +2,7 @@
   background: var(--bg-card);
   border-radius: var(--radius-lg);
   padding: var(--spacing-base);
+  border-left: 4px solid var(--color-green);
   transition: background-color var(--transition-base);
 }
 
@@ -17,14 +18,14 @@
 }
 
 .icon {
-  width: 40px;
-  height: 40px;
-  border-radius: var(--radius-md);
-  background: var(--color-green);
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-circle);
+  background: rgba(255, 255, 255, 0.07);
   display: flex;
   align-items: center;
   justify-content: center;
-  color: var(--bg-sidebar);
+  color: var(--text-secondary);
   flex-shrink: 0;
 }
 
@@ -47,6 +48,27 @@
   color: var(--text-secondary);
   line-height: 1.5;
   margin-bottom: var(--spacing-md);
+}
+
+.explanationClamped {
+  composes: explanation;
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.showMore {
+  font-size: var(--font-size-sm);
+  color: var(--text-subdued);
+  margin-bottom: var(--spacing-md);
+  cursor: pointer;
+  font-weight: var(--font-weight-bold);
+  transition: color var(--transition-fast);
+}
+
+.showMore:hover {
+  color: var(--text-primary);
 }
 
 .boundary {

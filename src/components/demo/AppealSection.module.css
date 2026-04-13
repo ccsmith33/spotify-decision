@@ -20,6 +20,7 @@
   font-size: var(--font-size-lg);
   font-weight: var(--font-weight-bold);
   color: var(--text-primary);
+  letter-spacing: -0.5px;
   margin-bottom: var(--spacing-base);
 }
 
@@ -66,9 +67,14 @@
   transition: transform var(--transition-base), background-color var(--transition-fast);
 }
 
-.submitButton:hover {
+.submitButton:hover:not(:disabled) {
   transform: scale(1.04);
   background: var(--color-green-light);
+}
+
+.submitButton:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
 }
 
 .processCard {
@@ -81,6 +87,7 @@
   font-size: var(--font-size-lg);
   font-weight: var(--font-weight-bold);
   color: var(--text-primary);
+  letter-spacing: -0.5px;
   margin-bottom: var(--spacing-base);
 }
 
@@ -157,6 +164,7 @@
   font-size: var(--font-size-lg);
   font-weight: var(--font-weight-bold);
   color: var(--text-primary);
+  letter-spacing: -0.5px;
   margin-bottom: var(--spacing-base);
 }
 

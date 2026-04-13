@@ -34,8 +34,11 @@ export function AppealSection({ existingAppeals, onSubmit }: AppealSectionProps)
   const [description, setDescription] = useState('');
   const [desiredOutcome, setDesiredOutcome] = useState('');
 
+  const isFormValid = description.trim().length > 0 && desiredOutcome.trim().length > 0;
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    if (!isFormValid) return;
     onSubmit({ category, description, desiredOutcome });
     setSubmitted(true);
     setDescription('');
@@ -88,7 +91,7 @@ export function AppealSection({ existingAppeals, onSubmit }: AppealSectionProps)
               />
             </div>
 
-            <button type="submit" className={styles.submitButton}>Submit Appeal</button>
+            <button type="submit" className={styles.submitButton} disabled={!isFormValid}>Submit Appeal</button>
           </form>
         </div>
 

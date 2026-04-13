@@ -4,20 +4,19 @@
 
 .barContainer {
   display: flex;
-  height: 24px;
-  border-radius: var(--radius-sm);
+  height: 6px;
+  border-radius: 3px;
   overflow: hidden;
-  margin-bottom: var(--spacing-sm);
+  margin-bottom: var(--spacing-md);
+  background: rgba(255, 255, 255, 0.04);
 }
 
 .segment {
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 10px;
-  font-weight: var(--font-weight-bold);
-  color: var(--text-primary);
-  min-width: 24px;
+  font-size: 0;
+  min-width: 8px;
   transition: opacity var(--transition-fast);
   cursor: default;
   position: relative;
@@ -30,20 +29,28 @@
 .legend {
   display: flex;
   flex-wrap: wrap;
-  gap: var(--spacing-sm) var(--spacing-base);
+  gap: var(--spacing-sm);
 }
 
 .legendItem {
-  display: flex;
+  display: inline-flex;
   align-items: center;
   gap: var(--spacing-xs);
-  font-size: var(--font-size-sm);
-  color: var(--text-secondary);
+  font-size: var(--font-size-xs);
+  color: var(--text-subdued);
+  background: rgba(255, 255, 255, 0.07);
+  padding: 4px 12px;
+  border-radius: var(--radius-pill);
+  transition: background-color var(--transition-fast);
+}
+
+.legendItem:hover {
+  background: rgba(255, 255, 255, 0.1);
 }
 
 .legendDot {
-  width: 8px;
-  height: 8px;
+  width: 6px;
+  height: 6px;
   border-radius: var(--radius-circle);
   flex-shrink: 0;
 }
@@ -54,4 +61,5 @@
 
 .legendWeight {
   color: var(--text-subdued);
+  margin-left: 2px;
 }
