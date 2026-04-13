@@ -72,6 +72,41 @@
 - **Rationale**: Maps to three user profiles from testing (casual/engaged/power). Explanation entity already has three fields. User-controlled toggle respects agency. See ADR-004.
 - **Affects**: Explanation mock data, TransparencyControls, DecisionCard, RecommendationList, DecisionHistory
 
+### D-011: Express Replaces Nginx
+- **Date**: 2026-04-13
+- **Status**: decided
+- **Decision**: Use a minimal Express server to serve static files and the `/api/explain` endpoint, replacing nginx
+- **Rationale**: One process, one port, no reverse-proxy config. The only backend need is the Claude CLI explanation endpoint. Express's `express.static()` is sufficient for serving a Vite build. See ADR-005.
+- **Affects**: Deployment, server infrastructure
+
+### D-012: Client-Side PKCE OAuth for Spotify
+- **Date**: 2026-04-13
+- **Status**: decided
+- **Decision**: Use Spotify's Authorization Code with PKCE flow entirely in the browser, no backend auth
+- **Rationale**: Spotify's recommended flow for SPAs. No client secret to protect. Refresh tokens supported. Tokens in sessionStorage for security. See ADR-006.
+- **Affects**: Auth flow, token management, all API calls
+
+### D-013: Web Playback SDK for Browser Playback
+- **Date**: 2026-04-13
+- **Status**: decided
+- **Decision**: Use Spotify Web Playback SDK for real music playback in the browser (Premium required), with graceful fallback to `usePlaybackSimulation`
+- **Rationale**: Full playback control matching the existing NowPlayingBar UI. Compelling demo experience. Free/unauthenticated users keep the existing simulation. See ADR-008.
+- **Affects**: NowPlayingBar, playback hooks, external SDK dependency
+
+### D-014: Dual-Mode Data Context (Mock + Live)
+- **Date**: 2026-04-13
+- **Status**: decided
+- **Decision**: React Context provides unified data layer that switches between mock data (unauthenticated) and live Spotify API data (authenticated)
+- **Rationale**: Components remain unchanged — same interfaces regardless of data source. No duplication. Per-section fallback if individual API calls fail. See ADR-007.
+- **Affects**: Data layer, App.tsx, DemoPage, all data-consuming components
+
+### D-015: Claude Code CLI for Generating Explanations
+- **Date**: 2026-04-13
+- **Status**: decided
+- **Decision**: The Express backend shells out to `claude -p "prompt"` (Claude Code CLI, `-p` print flag) to generate recommendation explanations. No Anthropic SDK or API key is used.
+- **Rationale**: The user has a Claude Code subscription and will authenticate the CLI on the droplet. `claude -p` runs a non-interactive single prompt and writes the response to stdout. This avoids API key management entirely — the CLI handles its own auth. The `@anthropic-ai/sdk` package is explicitly excluded. Prompt template is crafted to produce Spotify-tone explanations referencing specific audio features and listening patterns. 30-second timeout with error differentiation (timeout vs CLI not found vs empty response).
+- **Affects**: Express `/api/explain` endpoint, explanation display in demo page, server dependencies (no SDK)
+
 ## Tactical Decisions
 
 (Logged by agents during implementation)

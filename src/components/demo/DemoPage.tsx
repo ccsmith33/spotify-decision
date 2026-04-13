@@ -1,10 +1,10 @@
 import { useState } from 'react';
 import type { DetailLevel, AppealFormData } from '../../data/types';
 import { decisions, explanations } from '../../data/decisions';
-import { recommendations } from '../../data/recommendations';
 import { fairnessAudits } from '../../data/fairness';
 import { appeals } from '../../data/appeals';
 import { glossaryTerms } from '../../data/glossary';
+import { useSpotify } from '../../context/SpotifyContext';
 import { HeroSection } from './HeroSection';
 import { GlossaryPanel } from './GlossaryPanel';
 import { DecisionCard } from './DecisionCard';
@@ -23,6 +23,7 @@ interface DemoPageProps {
 export function DemoPage({ detailLevel, onDetailLevelChange }: DemoPageProps) {
   const [glossaryExpanded, setGlossaryExpanded] = useState(false);
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
+  const { recommendations, isLoading, isAuthenticated } = useSpotify();
 
   const decisionCardData = [
     { decision: decisions[0], explanation: explanations[0] },
@@ -59,8 +60,27 @@ export function DemoPage({ detailLevel, onDetailLevelChange }: DemoPageProps) {
       </div>
 
       <div className={styles.section}>
-        <h2 className={styles.sectionTitle}>Your Recent Recommendations</h2>
-        <RecommendationList recommendations={recommendations} detailLevel={detailLevel} />
+        <h2 className={styles.sectionTitle}>
+          Your Recent Recommendations
+          {isAuthenticated && isLoading && (
+            <span className={styles.loadingIndicator}> Loading your music data...</span>
+          )}
+        </h2>
+        {isAuthenticated && isLoading ? (
+          <div className={styles.skeletonContainer}>
+            {Array.from({ length: 5 }).map((_, i) => (
+              <div key={i} className={styles.skeletonRow}>
+                <div className={styles.skeletonArt} />
+                <div className={styles.skeletonText}>
+                  <div className={styles.skeletonLine} />
+                  <div className={styles.skeletonLineShort} />
+                </div>
+              </div>
+            ))}
+          </div>
+        ) : (
+          <RecommendationList recommendations={recommendations} detailLevel={detailLevel} />
+        )}
       </div>
 
       <div className={styles.section}>

@@ -45,7 +45,7 @@ describe('Shell Components', () => {
 
   describe('TopBar', () => {
     it('renders all four tab buttons', () => {
-      render(<TopBar activeTab="demo" onTabChange={() => {}} scrollOpacity={0} />);
+      render(<TopBar activeTab="demo" onTabChange={() => {}} scrollOpacity={0} user={null} isAuthenticated={false} onLogin={async () => {}} onLogout={() => {}} />);
       expect(screen.getByText('Demo')).toBeInTheDocument();
       expect(screen.getByText('Presentation')).toBeInTheDocument();
       expect(screen.getByText('Video')).toBeInTheDocument();
@@ -54,7 +54,7 @@ describe('Shell Components', () => {
 
     it('calls onTabChange when a tab is clicked', () => {
       const onTabChange = vi.fn();
-      render(<TopBar activeTab="demo" onTabChange={onTabChange} scrollOpacity={0} />);
+      render(<TopBar activeTab="demo" onTabChange={onTabChange} scrollOpacity={0} user={null} isAuthenticated={false} onLogin={async () => {}} onLogout={() => {}} />);
       fireEvent.click(screen.getByText('Presentation'));
       expect(onTabChange).toHaveBeenCalledWith('presentation');
     });

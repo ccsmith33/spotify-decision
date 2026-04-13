@@ -13,3 +13,66 @@
   letter-spacing: -0.5px;
   margin-bottom: var(--spacing-base);
 }
+
+.loadingIndicator {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-regular);
+  color: var(--text-secondary);
+  margin-left: var(--spacing-sm);
+}
+
+/* Skeleton loading states */
+.skeletonContainer {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+}
+
+.skeletonRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-sm) var(--spacing-base);
+  height: 56px;
+}
+
+.skeletonArt {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-sm);
+  background: var(--bg-elevated);
+  animation: skeletonPulse 1.5s ease-in-out infinite;
+}
+
+.skeletonText {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  flex: 1;
+}
+
+.skeletonLine {
+  height: 14px;
+  width: 60%;
+  border-radius: var(--radius-sm);
+  background: var(--bg-elevated);
+  animation: skeletonPulse 1.5s ease-in-out infinite;
+}
+
+.skeletonLineShort {
+  height: 12px;
+  width: 40%;
+  border-radius: var(--radius-sm);
+  background: var(--bg-elevated);
+  animation: skeletonPulse 1.5s ease-in-out infinite;
+  animation-delay: 0.2s;
+}
+
+@keyframes skeletonPulse {
+  0%, 100% {
+    background: var(--bg-elevated);
+  }
+  50% {
+    background: var(--bg-elevated-hover);
+  }
+}

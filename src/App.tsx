@@ -1,7 +1,8 @@
-import { useState, useRef } from 'react';
 import type { TabId, DetailLevel } from './data/types';
-import { usePlaybackSimulation } from './hooks/usePlaybackSimulation';
+import { useState, useRef } from 'react';
 import { useScrollOpacity } from './hooks/useScrollOpacity';
+import { SpotifyProvider } from './context/SpotifyProvider';
+import { useSpotify } from './context/SpotifyContext';
 import { Sidebar } from './components/shell/Sidebar';
 import { TopBar } from './components/shell/TopBar';
 import { NowPlayingBar } from './components/shell/NowPlayingBar';
@@ -11,12 +12,12 @@ import { VideoPage } from './components/video/VideoPage';
 import { AppendixPage } from './components/appendix/AppendixPage';
 import styles from './App.module.css';
 
-function App() {
+function AppInner() {
   const [activeTab, setActiveTab] = useState<TabId>('demo');
   const [detailLevel, setDetailLevel] = useState<DetailLevel>('basic');
   const contentRef = useRef<HTMLDivElement>(null);
   const scrollOpacity = useScrollOpacity(contentRef);
-  const playback = usePlaybackSimulation();
+  const { playback, user, isAuthenticated, login, logout } = useSpotify();
 
   const renderContent = () => {
     switch (activeTab) {
@@ -39,6 +40,10 @@ function App() {
           activeTab={activeTab}
           onTabChange={setActiveTab}
           scrollOpacity={scrollOpacity}
+          user={user}
+          isAuthenticated={isAuthenticated}
+          onLogin={login}
+          onLogout={logout}
         />
         <div className={styles.contentArea} ref={contentRef}>
           {renderContent()}
@@ -50,12 +55,23 @@ function App() {
           isPlaying={playback.isPlaying}
           progress={playback.progress}
           volume={playback.volume}
+          albumImageUrl={playback.albumImageUrl}
           onPlayPause={playback.togglePlay}
+          onNext={playback.nextTrack}
+          onPrevious={playback.previousTrack}
           onProgressChange={playback.setProgress}
           onVolumeChange={playback.setVolume}
         />
       </div>
     </div>
+  );
+}
+
+function App() {
+  return (
+    <SpotifyProvider>
+      <AppInner />
+    </SpotifyProvider>
   );
 }
 

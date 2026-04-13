@@ -1,4 +1,5 @@
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { useState, useRef, useEffect } from 'react';
+import { ChevronLeft, ChevronRight, LogOut } from 'lucide-react';
 import type { TabId } from '../../data/types';
 import styles from './TopBar.module.css';
 
@@ -6,6 +7,10 @@ interface TopBarProps {
   activeTab: TabId;
   onTabChange: (tab: TabId) => void;
   scrollOpacity: number;
+  user: { displayName: string; avatarUrl: string | null; isPremium: boolean } | null;
+  isAuthenticated: boolean;
+  onLogin: () => Promise<void>;
+  onLogout: () => void;
 }
 
 const tabs: { id: TabId; label: string }[] = [
@@ -15,7 +20,28 @@ const tabs: { id: TabId; label: string }[] = [
   { id: 'appendix', label: 'Appendix' },
 ];
 
-export function TopBar({ activeTab, onTabChange, scrollOpacity }: TopBarProps) {
+export function TopBar({
+  activeTab,
+  onTabChange,
+  scrollOpacity,
+  user,
+  isAuthenticated,
+  onLogin,
+  onLogout,
+}: TopBarProps) {
+  const [dropdownOpen, setDropdownOpen] = useState(false);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const handleClickOutside = (e: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
+        setDropdownOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, []);
+
   return (
     <div
       className={styles.topBar}
@@ -43,7 +69,35 @@ export function TopBar({ activeTab, onTabChange, scrollOpacity }: TopBarProps) {
       </div>
 
       <div className={styles.userArea}>
-        <div className={styles.avatar}>CS</div>
+        {isAuthenticated && user ? (
+          <div className={styles.userProfile} ref={dropdownRef}>
+            <button
+              className={styles.userButton}
+              onClick={() => setDropdownOpen((prev) => !prev)}
+            >
+              {user.avatarUrl ? (
+                <img src={user.avatarUrl} alt={user.displayName} className={styles.avatarImage} />
+              ) : (
+                <div className={styles.avatar}>
+                  {user.displayName.slice(0, 2).toUpperCase()}
+                </div>
+              )}
+              <span className={styles.userName}>{user.displayName}</span>
+            </button>
+            {dropdownOpen && (
+              <div className={styles.dropdown}>
+                <button className={styles.dropdownItem} onClick={() => { onLogout(); setDropdownOpen(false); }}>
+                  <LogOut size={16} />
+                  Disconnect
+                </button>
+              </div>
+            )}
+          </div>
+        ) : (
+          <button className={styles.connectButton} onClick={onLogin}>
+            Connect Spotify
+          </button>
+        )}
       </div>
     </div>
   );

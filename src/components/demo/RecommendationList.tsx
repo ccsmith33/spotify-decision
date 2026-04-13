@@ -38,6 +38,7 @@ export function RecommendationList({ recommendations, detailLevel }: Recommendat
 
       {recommendations.map((rec, index) => {
         const isExpanded = expandedId === rec.track.id;
+        const hasRealArt = rec.album.coverUrl && rec.album.coverUrl.length > 0;
         return (
           <div key={rec.track.id}>
             <div
@@ -46,12 +47,20 @@ export function RecommendationList({ recommendations, detailLevel }: Recommendat
             >
               <span className={styles.rowIndex}>{index + 1}</span>
               <div className={styles.trackCell}>
-                <div
-                  className={styles.trackArt}
-                  style={{ background: albumColors[rec.album.id] ?? '#282828' }}
-                >
-                  {'\u266B'}
-                </div>
+                {hasRealArt ? (
+                  <img
+                    src={rec.album.coverUrl}
+                    alt={rec.album.title}
+                    className={styles.trackArtImage}
+                  />
+                ) : (
+                  <div
+                    className={styles.trackArt}
+                    style={{ background: albumColors[rec.album.id] ?? '#282828' }}
+                  >
+                    {'\u266B'}
+                  </div>
+                )}
                 <div className={styles.trackDetails}>
                   <div className={styles.trackName}>{rec.track.title}</div>
                   <div className={styles.trackArtistName}>{rec.artist.name}</div>

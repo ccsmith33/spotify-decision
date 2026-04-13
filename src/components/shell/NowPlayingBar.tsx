@@ -1,4 +1,4 @@
-import { Heart, ListMusic, Monitor, Maximize2, Volume2 } from 'lucide-react';
+import { Heart, ListMusic, Monitor, Maximize2, Volume2, SkipBack, SkipForward } from 'lucide-react';
 import type { Track } from '../../data/types';
 import { getArtist, getAlbum } from '../../data/tracks';
 import { PlaybackControls } from './PlaybackControls';
@@ -10,7 +10,10 @@ interface NowPlayingBarProps {
   isPlaying: boolean;
   progress: number;
   volume: number;
+  albumImageUrl?: string | null;
   onPlayPause: () => void;
+  onNext?: () => void;
+  onPrevious?: () => void;
   onProgressChange: (val: number) => void;
   onVolumeChange: (val: number) => void;
 }
@@ -22,29 +25,45 @@ export function NowPlayingBar({
   isPlaying,
   progress,
   volume,
+  albumImageUrl,
   onPlayPause,
+  onNext,
+  onPrevious,
   onProgressChange,
   onVolumeChange,
 }: NowPlayingBarProps) {
-  const artist = getArtist(track.artistId);
-  const album = getAlbum(track.albumId);
+  // For live Spotify tracks the artistId/albumId won't match mock data lookups,
+  // but we still attempt it for mock mode and fall back gracefully
+  const isMockTrack = track.id.startsWith('track-');
+  const artist = isMockTrack ? getArtist(track.artistId) : null;
+  const album = isMockTrack ? getAlbum(track.albumId) : null;
   const currentTime = (progress / 100) * (track.durationMs / 1000);
   const duration = track.durationMs / 1000;
-  const colorIndex = parseInt(album.id.replace('album-', ''), 10) - 1;
+
+  const colorIndex = album
+    ? parseInt(album.id.replace('album-', ''), 10) - 1
+    : 0;
+
+  const artistName = artist?.name ?? track.artistId;
+  const trackTitle = track.title;
 
   return (
     <div className={styles.bar}>
       <div className={styles.left}>
-        <div
-          className={styles.albumArt}
-          style={{ background: albumColors[colorIndex % albumColors.length] }}
-          aria-label={`${album.title} cover`}
-        >
-          {'\u266B'}
-        </div>
+        {albumImageUrl ? (
+          <img src={albumImageUrl} alt="Album art" className={styles.albumArtImage} />
+        ) : (
+          <div
+            className={styles.albumArt}
+            style={{ background: albumColors[colorIndex % albumColors.length] }}
+            aria-label={album ? `${album.title} cover` : 'Album cover'}
+          >
+            {'\u266B'}
+          </div>
+        )}
         <div className={styles.trackInfo}>
-          <div className={styles.trackTitle}>{track.title}</div>
-          <div className={styles.trackArtist}>{artist.name}</div>
+          <div className={styles.trackTitle}>{trackTitle}</div>
+          <div className={styles.trackArtist}>{artistName}</div>
         </div>
         <button className={styles.utilityButton} aria-label="Like">
           <Heart size={16} />
@@ -52,7 +71,19 @@ export function NowPlayingBar({
       </div>
 
       <div className={styles.center}>
-        <PlaybackControls isPlaying={isPlaying} onPlayPause={onPlayPause} />
+        <div className={styles.controlsRow}>
+          {onPrevious && (
+            <button className={styles.utilityButton} onClick={onPrevious} aria-label="Previous">
+              <SkipBack size={16} />
+            </button>
+          )}
+          <PlaybackControls isPlaying={isPlaying} onPlayPause={onPlayPause} />
+          {onNext && (
+            <button className={styles.utilityButton} onClick={onNext} aria-label="Next">
+              <SkipForward size={16} />
+            </button>
+          )}
+        </div>
         <div className={styles.progressWrapper}>
           <ProgressBar
             value={progress}
