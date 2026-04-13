@@ -1,6 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { loadSpotifySDK } from '../services/spotifyPlayer';
-import { spotifyAuth } from '../services/spotifyAuth';
 
 interface SpotifyPlayerTrack {
   name: string;
@@ -27,6 +26,19 @@ interface SpotifyPlayerState {
   setVolume: (volume: number) => Promise<void>;
 }
 
+async function getServerToken(): Promise<string | null> {
+  try {
+    const res = await fetch('/api/spotify/token');
+    if (res.ok) {
+      const data = await res.json();
+      return data.accessToken ?? null;
+    }
+  } catch {
+    // Token not available
+  }
+  return null;
+}
+
 export function useSpotifyPlayer(accessToken: string | null): SpotifyPlayerState {
   const [player, setPlayer] = useState<Spotify.Player | null>(null);
   const [deviceId, setDeviceId] = useState<string | null>(null);
@@ -49,7 +61,11 @@ export function useSpotifyPlayer(accessToken: string | null): SpotifyPlayerState
 
       playerInstance = new window.Spotify.Player({
         name: 'Decision Transparency Portal',
-        getOAuthToken: (cb) => cb(accessToken),
+        getOAuthToken: async (cb) => {
+          // Get a fresh token from the server each time the SDK needs one
+          const token = await getServerToken();
+          if (token) cb(token);
+        },
         volume: 0.65,
       });
 
@@ -58,7 +74,7 @@ export function useSpotifyPlayer(accessToken: string | null): SpotifyPlayerState
         setIsReady(true);
 
         // Transfer playback to this device
-        spotifyAuth.getAccessToken().then((token) => {
+        getServerToken().then((token) => {
           if (token) {
             fetch('https://api.spotify.com/v1/me/player', {
               method: 'PUT',
@@ -132,7 +148,7 @@ export function useSpotifyPlayer(accessToken: string | null): SpotifyPlayerState
 
   const play = useCallback(
     async (uri: string) => {
-      const token = await spotifyAuth.getAccessToken();
+      const token = await getServerToken();
       if (!token || !deviceId) return;
 
       await fetch(`https://api.spotify.com/v1/me/player/play?device_id=${deviceId}`, {

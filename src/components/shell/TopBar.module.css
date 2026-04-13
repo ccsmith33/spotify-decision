@@ -96,6 +96,19 @@
   transform: scale(1.04);
 }
 
+/* Setup button — one-time admin auth */
+.setupButton {
+  font-size: var(--font-size-sm);
+  color: var(--text-subdued);
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--radius-sm);
+  transition: color var(--transition-fast);
+}
+
+.setupButton:hover {
+  color: var(--text-primary);
+}
+
 /* Authenticated user display */
 .userProfile {
   position: relative;

@@ -1,5 +1,4 @@
-import { useState, useRef, useEffect } from 'react';
-import { ChevronLeft, ChevronRight, LogOut } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import type { TabId } from '../../data/types';
 import styles from './TopBar.module.css';
 
@@ -27,21 +26,8 @@ export function TopBar({
   user,
   isAuthenticated,
   onLogin,
-  onLogout,
+  onLogout: _onLogout,
 }: TopBarProps) {
-  const [dropdownOpen, setDropdownOpen] = useState(false);
-  const dropdownRef = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    const handleClickOutside = (e: MouseEvent) => {
-      if (dropdownRef.current && !dropdownRef.current.contains(e.target as Node)) {
-        setDropdownOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, []);
-
   return (
     <div
       className={styles.topBar}
@@ -70,32 +56,19 @@ export function TopBar({
 
       <div className={styles.userArea}>
         {isAuthenticated && user ? (
-          <div className={styles.userProfile} ref={dropdownRef}>
-            <button
-              className={styles.userButton}
-              onClick={() => setDropdownOpen((prev) => !prev)}
-            >
-              {user.avatarUrl ? (
-                <img src={user.avatarUrl} alt={user.displayName} className={styles.avatarImage} />
-              ) : (
-                <div className={styles.avatar}>
-                  {user.displayName.slice(0, 2).toUpperCase()}
-                </div>
-              )}
-              <span className={styles.userName}>{user.displayName}</span>
-            </button>
-            {dropdownOpen && (
-              <div className={styles.dropdown}>
-                <button className={styles.dropdownItem} onClick={() => { onLogout(); setDropdownOpen(false); }}>
-                  <LogOut size={16} />
-                  Disconnect
-                </button>
+          <div className={styles.userProfile}>
+            {user.avatarUrl ? (
+              <img src={user.avatarUrl} alt={user.displayName} className={styles.avatarImage} />
+            ) : (
+              <div className={styles.avatar}>
+                {user.displayName.slice(0, 2).toUpperCase()}
               </div>
             )}
+            <span className={styles.userName}>{user.displayName}</span>
           </div>
         ) : (
-          <button className={styles.connectButton} onClick={onLogin}>
-            Connect Spotify
+          <button className={styles.setupButton} onClick={onLogin}>
+            Setup
           </button>
         )}
       </div>

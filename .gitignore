@@ -18,6 +18,8 @@ Thumbs.db
 .env
 .env.local
 .env.*.local
+server/.env
+server/.spotify-token
 
 # BMAD Swarm internals (not needed on droplet)
 .claude/

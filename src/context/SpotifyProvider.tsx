@@ -2,15 +2,12 @@ import { useState, useEffect, useCallback, useMemo } from 'react';
 import type { ReactNode } from 'react';
 import type { Track, Artist, Recommendation } from '../data/types';
 import type { SpotifyAudioFeature, SpotifyArtist, SpotifyTrack } from '../services/spotifyTypes';
-import { spotifyAuth } from '../services/spotifyAuth';
-import { spotifyApi } from '../services/spotifyApi';
 import { buildLiveRecommendation, mapSpotifyTrack, mapSpotifyArtist } from '../services/dataMappers';
 import { usePlaybackSimulation } from '../hooks/usePlaybackSimulation';
 import { useSpotifyPlayer } from '../hooks/useSpotifyPlayer';
 import { SpotifyContext } from './SpotifyContext';
 import type { SpotifyContextValue } from './SpotifyContext';
 
-// Import mock data for fallback
 import { recommendations as mockRecommendations } from '../data/recommendations';
 import { tracks as mockTracks } from '../data/tracks';
 
@@ -19,9 +16,9 @@ interface Props {
 }
 
 export function SpotifyProvider({ children }: Props) {
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isConnected, setIsConnected] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const [accessToken, setAccessToken] = useState<string | null>(null);
+  const [playbackToken, setPlaybackToken] = useState<string | null>(null);
 
   const [user, setUser] = useState<SpotifyContextValue['user']>(null);
   const [liveRecommendations, setLiveRecommendations] = useState<Recommendation[]>([]);
@@ -29,99 +26,92 @@ export function SpotifyProvider({ children }: Props) {
   const [liveTopArtists, setLiveTopArtists] = useState<Artist[]>([]);
   const [explanations, setExplanations] = useState<Record<string, string>>({});
   const [audioFeatures, setAudioFeatures] = useState<Record<string, SpotifyAudioFeature>>({});
-  const [dataLoaded, setDataLoaded] = useState(false);
 
   const mockPlayback = usePlaybackSimulation();
-  const spotifyPlayer = useSpotifyPlayer(isAuthenticated ? accessToken : null);
+  const spotifyPlayer = useSpotifyPlayer(playbackToken);
 
-  // Check for callback or existing tokens on mount
+  // On mount: check if server has Spotify connected, then fetch all data
   useEffect(() => {
-    const init = async () => {
-      // Check for OAuth callback
-      const params = new URLSearchParams(window.location.search);
-      if (params.has('code')) {
-        const tokens = await spotifyAuth.handleCallback();
-        if (tokens) {
-          setAccessToken(tokens.accessToken);
-          setIsAuthenticated(true);
-          setIsLoading(false);
-          return;
-        }
-      }
-
-      // Check for existing session
-      if (spotifyAuth.isAuthenticated()) {
-        const token = await spotifyAuth.getAccessToken();
-        if (token) {
-          setAccessToken(token);
-          setIsAuthenticated(true);
-        }
-      }
-
-      setIsLoading(false);
-    };
-
-    init();
-  }, []);
-
-  // Fetch data when authenticated
-  useEffect(() => {
-    if (!isAuthenticated || !accessToken || dataLoaded) return;
-
     const fetchData = async () => {
       setIsLoading(true);
 
       try {
-        // Fetch user profile, top tracks, and top artists in parallel
-        const [userProfile, topTracksResult, topArtistsResult] = await Promise.all([
-          spotifyApi.getMe(accessToken).catch(() => null),
-          spotifyApi.getTopTracks(accessToken).catch(() => null),
-          spotifyApi.getTopArtists(accessToken).catch(() => null),
+        // Check if Spotify is connected by fetching user profile
+        const meResponse = await fetch('/api/spotify/me');
+        if (!meResponse.ok) {
+          // Not connected -- use mock data
+          setIsConnected(false);
+          setIsLoading(false);
+          return;
+        }
+
+        const userProfile = await meResponse.json();
+        setUser({
+          displayName: userProfile.display_name,
+          avatarUrl: userProfile.images?.[0]?.url ?? null,
+          isPremium: userProfile.product === 'premium',
+        });
+        setIsConnected(true);
+
+        // Get a playback token for the Web Playback SDK
+        try {
+          const tokenResponse = await fetch('/api/spotify/token');
+          if (tokenResponse.ok) {
+            const tokenData = await tokenResponse.json();
+            setPlaybackToken(tokenData.accessToken);
+          }
+        } catch {
+          // Playback won't work but data will
+        }
+
+        // Fetch top tracks and top artists in parallel
+        const [topTracksRes, topArtistsRes] = await Promise.all([
+          fetch('/api/spotify/top-tracks').then(r => r.ok ? r.json() : null).catch(() => null),
+          fetch('/api/spotify/top-artists').then(r => r.ok ? r.json() : null).catch(() => null),
         ]);
 
-        if (userProfile) {
-          setUser({
-            displayName: userProfile.display_name,
-            avatarUrl: userProfile.images[0]?.url ?? null,
-            isPremium: userProfile.product === 'premium',
-          });
+        if (topTracksRes?.items) {
+          setLiveTopTracks(topTracksRes.items.map((t: SpotifyTrack) => mapSpotifyTrack(t)));
         }
 
-        if (topTracksResult) {
-          setLiveTopTracks(topTracksResult.items.map(mapSpotifyTrack));
+        if (topArtistsRes?.items) {
+          setLiveTopArtists(topArtistsRes.items.map((a: SpotifyArtist) => mapSpotifyArtist(a)));
         }
 
-        if (topArtistsResult) {
-          setLiveTopArtists(topArtistsResult.items.map(mapSpotifyArtist));
-        }
-
-        // Get recommendations using top tracks/artists as seeds
-        const seedTracks = topTracksResult?.items.slice(0, 2).map((t) => t.id) ?? [];
-        const seedArtists = topArtistsResult?.items.slice(0, 2).map((a) => a.id) ?? [];
-        const topGenres = topArtistsResult?.items.flatMap((a) => a.genres).slice(0, 5) ?? [];
+        // Build recommendation seeds
+        const seedTracks = topTracksRes?.items?.slice(0, 2).map((t: SpotifyTrack) => t.id) ?? [];
+        const seedArtists = topArtistsRes?.items?.slice(0, 2).map((a: SpotifyArtist) => a.id) ?? [];
+        const topGenres: string[] = topArtistsRes?.items?.flatMap((a: SpotifyArtist) => a.genres).slice(0, 5) ?? [];
         const uniqueGenres = [...new Set(topGenres)];
 
+        // Fetch recommendations
         let recTracks: SpotifyTrack[] = [];
         try {
-          const recs = await spotifyApi.getRecommendations(accessToken, {
-            seedTracks,
-            seedArtists,
-            seedGenres: uniqueGenres.slice(0, 1),
-          });
-          recTracks = recs.tracks;
+          const recParams = new URLSearchParams();
+          if (seedTracks.length) recParams.set('seed_tracks', seedTracks.join(','));
+          if (seedArtists.length) recParams.set('seed_artists', seedArtists.join(','));
+          if (uniqueGenres.length) recParams.set('seed_genres', uniqueGenres.slice(0, 1).join(','));
+          recParams.set('limit', '10');
+
+          const recRes = await fetch(`/api/spotify/recommendations?${recParams.toString()}`);
+          if (recRes.ok) {
+            const recData = await recRes.json();
+            recTracks = recData.tracks ?? [];
+          }
         } catch {
-          // Fall back to mock data for recommendations
+          // Fall back to mock recommendations
         }
 
         if (recTracks.length > 0) {
-          // Fetch audio features for recommended tracks
+          // Fetch audio features
           let features: SpotifyAudioFeature[] = [];
           try {
-            const featuresResult = await spotifyApi.getAudioFeatures(
-              accessToken,
-              recTracks.map((t) => t.id),
-            );
-            features = featuresResult.audio_features.filter(Boolean);
+            const ids = recTracks.map(t => t.id).join(',');
+            const afRes = await fetch(`/api/spotify/audio-features/${ids}`);
+            if (afRes.ok) {
+              const afData = await afRes.json();
+              features = (afData.audio_features ?? []).filter(Boolean);
+            }
           } catch {
             // Continue without audio features
           }
@@ -132,17 +122,17 @@ export function SpotifyProvider({ children }: Props) {
           }
           setAudioFeatures(featureMap);
 
-          // Build artist map from recommendation track artists
+          // Build artist map
           const artistMap = new Map<string, SpotifyArtist>();
-          if (topArtistsResult) {
-            for (const a of topArtistsResult.items) {
+          if (topArtistsRes?.items) {
+            for (const a of topArtistsRes.items) {
               artistMap.set(a.id, a);
             }
           }
 
           // Fetch Claude explanations in parallel
           const explanationResults = await Promise.allSettled(
-            recTracks.map(async (track) => {
+            recTracks.map(async (track: SpotifyTrack) => {
               const af = featureMap[track.id];
               try {
                 const response = await fetch('/api/explain', {
@@ -169,9 +159,9 @@ export function SpotifyProvider({ children }: Props) {
                   const data = await response.json();
                   return { trackId: track.id, explanation: data.explanation as string };
                 }
-                return { trackId: track.id, explanation: `Recommended based on your listening patterns and taste profile.` };
+                return { trackId: track.id, explanation: 'Recommended based on your listening patterns and taste profile.' };
               } catch {
-                return { trackId: track.id, explanation: `Recommended based on your listening patterns and taste profile.` };
+                return { trackId: track.id, explanation: 'Recommended based on your listening patterns and taste profile.' };
               }
             }),
           );
@@ -185,7 +175,7 @@ export function SpotifyProvider({ children }: Props) {
           setExplanations(expMap);
 
           // Build live recommendations
-          const recs = recTracks.map((track) =>
+          const recs = recTracks.map((track: SpotifyTrack) =>
             buildLiveRecommendation(
               track,
               artistMap,
@@ -195,39 +185,34 @@ export function SpotifyProvider({ children }: Props) {
           );
           setLiveRecommendations(recs);
         }
-
-        setDataLoaded(true);
       } catch (error) {
         console.error('Error fetching Spotify data:', error);
-        setDataLoaded(true);
+        setIsConnected(false);
       } finally {
         setIsLoading(false);
       }
     };
 
     fetchData();
-  }, [isAuthenticated, accessToken, dataLoaded]);
+  }, []);
 
   const login = useCallback(async () => {
-    await spotifyAuth.initiateLogin();
+    window.location.href = '/auth/login';
   }, []);
 
   const logout = useCallback(() => {
-    spotifyAuth.logout();
-    setIsAuthenticated(false);
-    setAccessToken(null);
+    setIsConnected(false);
+    setPlaybackToken(null);
     setUser(null);
     setLiveRecommendations([]);
     setLiveTopTracks([]);
     setLiveTopArtists([]);
     setExplanations({});
     setAudioFeatures({});
-    setDataLoaded(false);
   }, []);
 
-  // Build playback from either Spotify player or mock
   const playback = useMemo((): SpotifyContextValue['playback'] => {
-    if (isAuthenticated && spotifyPlayer.isReady && spotifyPlayer.currentTrack) {
+    if (isConnected && spotifyPlayer.isReady && spotifyPlayer.currentTrack) {
       const sdkTrack = spotifyPlayer.currentTrack;
       const track: Track = {
         id: sdkTrack.uri,
@@ -270,26 +255,27 @@ export function SpotifyProvider({ children }: Props) {
       setProgress: mockPlayback.setProgress,
       setVolume: mockPlayback.setVolume,
     };
-  }, [isAuthenticated, spotifyPlayer, mockPlayback]);
+  }, [isConnected, spotifyPlayer, mockPlayback]);
 
   const value = useMemo(
     (): SpotifyContextValue => ({
-      isAuthenticated,
+      isAuthenticated: isConnected,
+      isConnected,
       isLoading,
       login,
       logout,
       user,
       playback,
-      recommendations: isAuthenticated && liveRecommendations.length > 0
+      recommendations: isConnected && liveRecommendations.length > 0
         ? liveRecommendations
         : mockRecommendations,
-      topTracks: isAuthenticated && liveTopTracks.length > 0 ? liveTopTracks : mockTracks,
+      topTracks: isConnected && liveTopTracks.length > 0 ? liveTopTracks : mockTracks,
       topArtists: liveTopArtists,
       explanations,
       audioFeatures,
     }),
     [
-      isAuthenticated, isLoading, login, logout, user, playback,
+      isConnected, isLoading, login, logout, user, playback,
       liveRecommendations, liveTopTracks, liveTopArtists, explanations, audioFeatures,
     ],
   );

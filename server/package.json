@@ -3,9 +3,9 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "start": "node --loader ts-node/esm index.ts",
+    "start": "node --env-file=.env --loader ts-node/esm index.ts",
     "build": "tsc",
-    "start:prod": "node dist/index.js"
+    "start:prod": "node --env-file=.env dist/index.js"
   },
   "dependencies": {
     "express": "^4.21.0"

@@ -4,6 +4,7 @@ import type { SpotifyAudioFeature } from '../services/spotifyTypes';
 
 export interface SpotifyContextValue {
   isAuthenticated: boolean;
+  isConnected: boolean;
   isLoading: boolean;
   login: () => Promise<void>;
   logout: () => void;

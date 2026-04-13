@@ -1,0 +1,20 @@
+server {
+    listen 443 ssl;
+    server_name spotify-portal.duckdns.org;
+    ssl_certificate /etc/letsencrypt/live/spotify-portal.duckdns.org/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/spotify-portal.duckdns.org/privkey.pem;
+
+    location /api/ {
+        proxy_pass http://localhost:3000;
+    }
+    location /auth/ {
+        proxy_pass http://localhost:3000;
+    }
+    location /callback {
+        proxy_pass http://localhost:3000;
+    }
+    location / {
+        root /spotify-decision/dist;
+        try_files $uri $uri/ /index.html;
+    }
+}
