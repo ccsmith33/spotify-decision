@@ -69,7 +69,7 @@ export function Sidebar({ activeTab }: SidebarProps) {
   const { topGenres, topArtistNames } = useMemo(() => {
     const genreCounts: Record<string, number> = {};
     for (const artist of topArtists) {
-      for (const genre of artist.genres) {
+      for (const genre of (artist.genres ?? [])) {
         genreCounts[genre] = (genreCounts[genre] ?? 0) + 1;
       }
     }

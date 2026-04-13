@@ -40,6 +40,8 @@ const SCOPES = [
   'streaming',
   'user-read-playback-state',
   'user-modify-playback-state',
+  'playlist-read-private',
+  'playlist-read-collaborative',
 ].join(' ');
 
 // --- Token storage helpers ---
