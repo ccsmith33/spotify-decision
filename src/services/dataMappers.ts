@@ -18,7 +18,7 @@ export function mapSpotifyArtist(sa: SpotifyArtist): Artist {
     name: sa.name,
     imageUrl: sa.images[0]?.url ?? '',
     isIndependent: false,
-    genres: sa.genres,
+    genres: sa.genres ?? [],
     monthlyListeners: 0,
   };
 }

@@ -147,7 +147,7 @@ export function SpotifyProvider({ children }: Props) {
       }
 
       // Collect genre and artist info from top artists
-      const topGenres: string[] = topArtistsRes?.items?.flatMap((a: SpotifyArtist) => a.genres).slice(0, 5) ?? [];
+      const topGenres: string[] = topArtistsRes?.items?.flatMap((a: SpotifyArtist) => a.genres ?? []).slice(0, 5) ?? [];
       const uniqueGenres = [...new Set(topGenres)];
       const topArtistNames: string[] = topArtistsRes?.items?.map((a: SpotifyArtist) => a.name).slice(0, 5) ?? [];
 
