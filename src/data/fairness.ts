@@ -1,0 +1,77 @@
+import type { FairnessAudit, FairnessMetric } from './types';
+
+export const fairnessMetrics: FairnessMetric[] = [
+  {
+    id: 'fm-1',
+    name: 'Independent Artist Exposure',
+    description: 'Percentage of recommendation slots occupied by independent (non-major-label) artists across all algorithmic playlists.',
+    currentValue: 12.3,
+    targetValue: 15,
+    unit: '%',
+    trend: 'up',
+    previousValue: 10.8,
+    lastUpdated: '2026-04-01T00:00:00Z',
+    category: 'artist_visibility',
+  },
+  {
+    id: 'fm-2',
+    name: 'Genre Diversity Score',
+    description: 'Shannon diversity index measuring how evenly genres are represented in personalized recommendations. A score of 1.0 means perfect diversity.',
+    currentValue: 0.78,
+    targetValue: 0.80,
+    unit: 'score',
+    trend: 'stable',
+    previousValue: 0.77,
+    lastUpdated: '2026-04-01T00:00:00Z',
+    category: 'genre_diversity',
+  },
+  {
+    id: 'fm-3',
+    name: 'New Artist Discovery Rate',
+    description: 'Percentage of users who play at least one artist they have never listened to before, per week, via algorithmic recommendations.',
+    currentValue: 8.1,
+    targetValue: 10,
+    unit: '%',
+    trend: 'up',
+    previousValue: 7.2,
+    lastUpdated: '2026-04-01T00:00:00Z',
+    category: 'discovery',
+  },
+  {
+    id: 'fm-4',
+    name: 'Engagement Fairness Index',
+    description: 'Ratio comparing average algorithmic exposure per stream for independent artists vs. major-label artists. A score of 1.0 means equal treatment.',
+    currentValue: 0.72,
+    targetValue: 0.85,
+    unit: 'ratio',
+    trend: 'up',
+    previousValue: 0.65,
+    lastUpdated: '2026-04-01T00:00:00Z',
+    category: 'engagement_fairness',
+  },
+];
+
+export const fairnessAudits: FairnessAudit[] = [
+  {
+    id: 'audit-1',
+    auditDate: '2026-04-01T00:00:00Z',
+    auditor: 'Automated Fairness System',
+    metrics: fairnessMetrics,
+    overallScore: 0.73,
+    findings: 'Independent artist exposure continues to improve (+1.5pp month-over-month) but remains below target. Genre diversity is approaching target with stable performance. Engagement fairness shows the largest gap, indicating systemic bias toward major-label content in engagement-weighted ranking.',
+    recommendations: 'Increase independent artist candidate pool weight in Discover Weekly and Daily Mix pipelines. Investigate engagement metric definitions for major-label bias (e.g., playlist placement advantages). Set quarterly review for engagement fairness index.',
+  },
+  {
+    id: 'audit-2',
+    auditDate: '2026-03-01T00:00:00Z',
+    auditor: 'Automated Fairness System',
+    metrics: fairnessMetrics.map(m => ({
+      ...m,
+      currentValue: m.previousValue,
+      previousValue: m.previousValue - (m.currentValue - m.previousValue),
+    })),
+    overallScore: 0.68,
+    findings: 'Initial baseline audit revealed significant gaps in independent artist exposure and engagement fairness. Genre diversity was the strongest metric. Audit established baseline values for ongoing monitoring.',
+    recommendations: 'Establish monthly automated auditing cadence. Define escalation thresholds for metrics falling below 75% of target. Begin tracking artist catalog size as an additional fairness dimension.',
+  },
+];

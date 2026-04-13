@@ -1,0 +1,35 @@
+.controls {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-base);
+}
+
+.controlButton {
+  color: var(--icon-default);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: color var(--transition-fast);
+  padding: var(--spacing-xs);
+}
+
+.controlButton:hover {
+  color: var(--icon-hover);
+}
+
+.playButton {
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-circle);
+  background: var(--text-primary);
+  color: var(--bg-sidebar);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform var(--transition-base);
+}
+
+.playButton:hover {
+  transform: scale(1.06);
+}

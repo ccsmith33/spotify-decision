@@ -1,0 +1,77 @@
+.container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.container :global(.reveal) {
+  height: 100%;
+}
+
+.container :global(.reveal .slides) {
+  text-align: left;
+}
+
+.container :global(.reveal .slides section) {
+  background: var(--bg-base);
+  color: var(--text-primary);
+  font-family: var(--font-family);
+  padding: var(--spacing-2xl);
+  height: 100%;
+  display: flex !important;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.container :global(.reveal .slides h1) {
+  color: var(--text-primary);
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--spacing-lg);
+}
+
+.container :global(.reveal .slides h2) {
+  color: var(--text-primary);
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  margin-bottom: var(--spacing-base);
+}
+
+.container :global(.reveal .slides h3) {
+  color: var(--color-green-light);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-semibold);
+  margin-bottom: var(--spacing-md);
+}
+
+.container :global(.reveal .slides p) {
+  color: var(--text-secondary);
+  font-size: var(--font-size-lg);
+  line-height: 1.6;
+  margin-bottom: var(--spacing-md);
+}
+
+.container :global(.reveal .slides li) {
+  color: var(--text-secondary);
+  font-size: var(--font-size-lg);
+  line-height: 1.8;
+  margin-bottom: var(--spacing-sm);
+}
+
+.container :global(.reveal .slides .accent) {
+  color: var(--color-green-light);
+}
+
+.container :global(.reveal .slides .subtitle) {
+  color: var(--text-subdued);
+  font-size: var(--font-size-md);
+}
+
+.container :global(.reveal .controls) {
+  color: var(--color-green-light);
+}
+
+.container :global(.reveal .progress) {
+  color: var(--color-green);
+  height: 3px;
+}

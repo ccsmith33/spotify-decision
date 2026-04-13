@@ -1,0 +1,169 @@
+.sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-sm);
+  background: var(--bg-sidebar);
+  overflow: hidden;
+}
+
+.navPanel {
+  background: var(--bg-sidebar-panel);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-sm);
+}
+
+.navItem {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-base);
+  height: 40px;
+  padding: 0 var(--spacing-md);
+  border-radius: var(--radius-md);
+  color: var(--text-secondary);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
+  transition: color var(--transition-fast), background-color var(--transition-fast);
+  cursor: pointer;
+  width: 100%;
+  text-align: left;
+}
+
+.navItem:hover {
+  color: var(--text-primary);
+  background: var(--bg-highlight);
+}
+
+.navItemActive {
+  color: var(--text-primary);
+}
+
+.libraryPanel {
+  background: var(--bg-sidebar-panel);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-sm);
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.libraryHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--spacing-sm) var(--spacing-sm) 0;
+}
+
+.libraryTitle {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  color: var(--text-secondary);
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
+  transition: color var(--transition-fast);
+  cursor: pointer;
+}
+
+.libraryTitle:hover {
+  color: var(--text-primary);
+}
+
+.headerIcons {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+.iconButton {
+  color: var(--icon-default);
+  padding: var(--spacing-xs);
+  border-radius: var(--radius-circle);
+  transition: color var(--transition-fast), background-color var(--transition-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.iconButton:hover {
+  color: var(--icon-hover);
+  background: var(--bg-highlight);
+}
+
+.filterChips {
+  display: flex;
+  gap: var(--spacing-sm);
+  padding: var(--spacing-sm);
+  flex-wrap: wrap;
+}
+
+.chip {
+  background: #232323;
+  border-radius: var(--radius-pill);
+  padding: var(--spacing-sm) var(--spacing-md);
+  font-size: var(--font-size-sm);
+  color: var(--text-primary);
+  font-weight: var(--font-weight-regular);
+  transition: background-color var(--transition-fast);
+  white-space: nowrap;
+}
+
+.chip:hover {
+  background: var(--bg-elevated);
+}
+
+.chipActive {
+  background: var(--text-primary);
+  color: var(--bg-sidebar);
+}
+
+.playlistList {
+  flex: 1;
+  overflow-y: auto;
+  padding: var(--spacing-xs) 0;
+}
+
+.playlistItem {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  padding: var(--spacing-sm);
+  border-radius: var(--radius-md);
+  cursor: pointer;
+  transition: background-color var(--transition-fast);
+}
+
+.playlistItem:hover {
+  background: var(--bg-highlight);
+}
+
+.playlistCover {
+  width: 48px;
+  height: 48px;
+  border-radius: var(--radius-sm);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-size-lg);
+}
+
+.playlistInfo {
+  overflow: hidden;
+}
+
+.playlistName {
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.playlistMeta {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}

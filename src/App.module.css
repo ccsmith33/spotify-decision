@@ -1,0 +1,30 @@
+.app {
+  display: grid;
+  grid-template-columns: var(--sidebar-width) 1fr;
+  grid-template-rows: 1fr var(--player-height);
+  height: 100vh;
+  background: var(--bg-sidebar);
+  padding: var(--spacing-sm);
+  gap: var(--spacing-sm);
+}
+
+.mainArea {
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-base);
+  border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+  overflow: hidden;
+  grid-row: 1;
+  grid-column: 2;
+}
+
+.contentArea {
+  flex: 1;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.playerBar {
+  grid-column: 1 / -1;
+  grid-row: 2;
+}

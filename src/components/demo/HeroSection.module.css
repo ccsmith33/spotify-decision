@@ -1,0 +1,32 @@
+.hero {
+  padding: var(--spacing-2xl) 0 var(--spacing-xl);
+  background: linear-gradient(180deg, #1a1a5e 0%, var(--bg-base) 100%);
+  margin: 0 calc(-1 * var(--spacing-lg));
+  padding-left: var(--spacing-lg);
+  padding-right: var(--spacing-lg);
+  margin-bottom: var(--spacing-xl);
+}
+
+.tag {
+  font-size: 10px;
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-sm);
+}
+
+.title {
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-md);
+  line-height: 1.1;
+}
+
+.subtitle {
+  font-size: var(--font-size-md);
+  color: var(--text-secondary);
+  max-width: 600px;
+  line-height: 1.5;
+}

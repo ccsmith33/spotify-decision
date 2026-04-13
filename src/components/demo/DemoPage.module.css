@@ -1,0 +1,14 @@
+.page {
+  padding: 0 var(--spacing-lg) var(--spacing-2xl);
+}
+
+.section {
+  margin-bottom: var(--spacing-xl);
+}
+
+.sectionTitle {
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-base);
+}

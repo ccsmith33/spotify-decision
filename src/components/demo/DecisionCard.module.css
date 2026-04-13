@@ -1,0 +1,81 @@
+.card {
+  background: var(--bg-card);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-base);
+  transition: background-color var(--transition-base);
+}
+
+.card:hover {
+  background: var(--bg-card-hover);
+}
+
+.cardHeader {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-md);
+  margin-bottom: var(--spacing-md);
+}
+
+.icon {
+  width: 40px;
+  height: 40px;
+  border-radius: var(--radius-md);
+  background: var(--color-green);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--bg-sidebar);
+  flex-shrink: 0;
+}
+
+.cardType {
+  font-size: var(--font-size-sm);
+  color: var(--text-subdued);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.cardTitle {
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-bold);
+  color: var(--text-primary);
+  margin-bottom: var(--spacing-sm);
+}
+
+.explanation {
+  font-size: var(--font-size-base);
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin-bottom: var(--spacing-md);
+}
+
+.boundary {
+  font-size: var(--font-size-sm);
+  color: var(--text-subdued);
+  line-height: 1.5;
+  padding-top: var(--spacing-sm);
+  border-top: 1px solid var(--border-separator);
+}
+
+.confidence {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-md);
+  font-size: var(--font-size-sm);
+  color: var(--text-subdued);
+}
+
+.confidenceBar {
+  flex: 1;
+  height: 4px;
+  background: var(--border-default);
+  border-radius: 2px;
+  overflow: hidden;
+}
+
+.confidenceFill {
+  height: 100%;
+  background: var(--color-green);
+  border-radius: 2px;
+}
