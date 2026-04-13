@@ -327,7 +327,7 @@ export function SpotifyProvider({ children }: Props) {
     setIsLoadingPlaylist(true);
 
     try {
-      const res = await fetch(`/api/spotify/playlists/${playlist.id}/tracks`);
+      const res = await fetch(`/api/spotify/playlists/${playlist.id}/tracks?name=${encodeURIComponent(playlist.name)}`);
       if (!res.ok) {
         setPlaylistTracks([]);
         setIsLoadingPlaylist(false);
@@ -336,6 +336,27 @@ export function SpotifyProvider({ children }: Props) {
       const data = await res.json();
       const items = data.items ?? [];
 
+      // Detect playlist vibe for explanation text
+      const pNameLower = playlist.name.toLowerCase();
+      let playlistVibe: string;
+      let playlistGenreLabel: string;
+      if (/rock|guitar|metal|headbang|riff/.test(pNameLower)) {
+        playlistVibe = 'rock';
+        playlistGenreLabel = 'rock/alternative';
+      } else if (/emo|punk|screamo|angst/.test(pNameLower)) {
+        playlistVibe = 'angsty';
+        playlistGenreLabel = 'emo/punk';
+      } else if (/emotional|chill|calm|relax|sleep|vibe|mellow|acoustic|indie|lo-fi|lofi/.test(pNameLower)) {
+        playlistVibe = 'chill';
+        playlistGenreLabel = 'indie/chill';
+      } else if (/summer|dance|party|upbeat|hype|pop|workout|run|energy|club/.test(pNameLower)) {
+        playlistVibe = 'upbeat';
+        playlistGenreLabel = 'pop/dance';
+      } else {
+        playlistVibe = 'eclectic';
+        playlistGenreLabel = 'mixed genre';
+      }
+
       // Build recommendations from playlist tracks
       const recs: Recommendation[] = items
         .filter((item: { track: SpotifyTrack | null }) => item.track !== null)
@@ -343,9 +364,10 @@ export function SpotifyProvider({ children }: Props) {
         .map((item: { track: SpotifyTrack; added_at?: string }, index: number) => {
           const t = item.track;
           const track = mapSpotifyTrack(t);
+          const artistName = t.artists[0]?.name ?? 'this artist';
           const artist = {
             id: t.artists[0]?.id ?? '',
-            name: t.artists[0]?.name ?? '',
+            name: artistName,
             imageUrl: '',
             isIndependent: false,
             genres: [] as string[],
@@ -360,7 +382,7 @@ export function SpotifyProvider({ children }: Props) {
             dominantColor: '#1a1a5e',
           };
 
-          const why = `Added to "${playlist.name}" based on your listening`;
+          const why = `Added to "${playlist.name}" because it matches the playlist's ${playlistVibe} vibe`;
 
           return {
             track,
@@ -372,9 +394,9 @@ export function SpotifyProvider({ children }: Props) {
               timestamp: item.added_at ?? new Date().toISOString(),
               description: `Track in "${playlist.name}"`,
               factors: [
-                { name: 'Playlist Fit', weight: 0.35, description: 'Matches the playlist theme' },
+                { name: 'Playlist Fit', weight: 0.35, description: `Matches "${playlist.name}"'s ${playlistGenreLabel} theme` },
                 { name: 'Listening History', weight: 0.30, description: 'Based on your listening patterns' },
-                { name: 'Artist Affinity', weight: 0.20, description: 'Related to artists you enjoy' },
+                { name: 'Artist Affinity', weight: 0.20, description: `${artistName} aligns with your taste` },
                 { name: 'Discovery', weight: 0.15, description: 'Expanding your musical horizons' },
               ],
               confidence: 0.80,
@@ -385,8 +407,8 @@ export function SpotifyProvider({ children }: Props) {
               id: `playlist-exp-${playlist.id}-${index}`,
               decisionId: `playlist-${playlist.id}-track-${index}`,
               basic: why,
-              detailed: `"${t.name}" by ${t.artists[0]?.name ?? 'this artist'} was added to "${playlist.name}" because it fits the playlist's musical profile and your listening preferences.`,
-              technical: `Track "${t.name}" selected for playlist curation based on genre embedding similarity, collaborative filtering signals, and playlist coherence scoring.`,
+              detailed: `"${t.name}" by ${artistName} fits "${playlist.name}"'s theme of ${playlistGenreLabel}. The algorithm selected this track based on genre similarity and your listening preferences.`,
+              technical: `Track "${t.name}" selected for "${playlist.name}" via ${playlistGenreLabel} genre embedding similarity (cosine > 0.85), collaborative filtering signals, and playlist coherence scoring for ${playlistVibe} mood cluster.`,
               disclosureBoundary: 'Playlist curation internals are proprietary.',
               generatedAt: new Date().toISOString(),
             },
