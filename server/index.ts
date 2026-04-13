@@ -361,7 +361,9 @@ app.get('/api/spotify/token', async (_req, res) => {
   res.json({ accessToken: token });
 });
 
-// --- Claude explanation endpoint ---
+// --- Claude explanation cache (persists until server restart or manual refresh) ---
+const explanationCache: Record<string, { basic: string; detailed: string; technical: string }> = {};
+
 app.post('/api/explain', async (req, res) => {
   try {
     const { trackName, artistName, userTopGenres, userTopArtists, popularity, matchReasons, position, source, artistRank } = req.body;
@@ -370,6 +372,15 @@ app.post('/api/explain', async (req, res) => {
       res.status(400).json({ error: 'trackName and artistName are required' });
       return;
     }
+
+    // Check explanation cache first
+    const cacheKey = `${trackName}::${artistName}`;
+    if (explanationCache[cacheKey] && req.query.refresh !== 'true') {
+      console.log('[explain-cache] HIT:', cacheKey);
+      res.json({ explanation: explanationCache[cacheKey] });
+      return;
+    }
+    console.log('[explain-cache] MISS:', cacheKey);
 
     const prompt = buildExplanationPrompt({
       trackName,
@@ -415,7 +426,9 @@ app.post('/api/explain', async (req, res) => {
       technical = rawText;
     }
 
-    res.json({ explanation: { basic, detailed, technical } });
+    const result = { basic, detailed, technical };
+    explanationCache[cacheKey] = result;
+    res.json({ explanation: result });
   } catch (err: unknown) {
     const error = err as Error & { killed?: boolean; code?: string | number; signal?: string };
 
