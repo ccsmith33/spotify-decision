@@ -157,6 +157,14 @@
 
 .playlistInfo {
   overflow: hidden;
+  min-width: 0;
+  flex: 1;
+}
+
+.playlistNameRow {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-xs);
 }
 
 .playlistName {
@@ -174,4 +182,79 @@
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+.infoIconWrapper {
+  position: relative;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+}
+
+.infoIcon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
+  border-radius: var(--radius-circle);
+  color: var(--text-subdued);
+  transition: color var(--transition-fast), background-color var(--transition-fast);
+  cursor: pointer;
+}
+
+.infoIcon:hover {
+  color: var(--color-green-light);
+  background: rgba(255, 255, 255, 0.08);
+}
+
+.tooltip {
+  position: absolute;
+  left: calc(100% + 8px);
+  top: 50%;
+  transform: translateY(-50%);
+  width: 240px;
+  background: var(--bg-elevated);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-md);
+  box-shadow: var(--shadow-heavy);
+  z-index: 100;
+  animation: tooltipFadeIn 150ms ease-out;
+}
+
+.tooltip::before {
+  content: '';
+  position: absolute;
+  right: 100%;
+  top: 50%;
+  transform: translateY(-50%);
+  border: 6px solid transparent;
+  border-right-color: var(--bg-elevated);
+}
+
+.tooltipHeader {
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  color: var(--color-green);
+  margin-bottom: var(--spacing-xs);
+}
+
+.tooltipText {
+  font-size: var(--font-size-sm);
+  color: var(--text-secondary);
+  line-height: 1.5;
+  margin: 0;
+}
+
+@keyframes tooltipFadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(-50%) translateX(-4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(-50%) translateX(0);
+  }
 }

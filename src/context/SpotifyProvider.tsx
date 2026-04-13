@@ -72,7 +72,7 @@ export function SpotifyProvider({ children }: Props) {
   const [liveTopTracks, setLiveTopTracks] = useState<Track[]>([]);
   const [liveTopArtists, setLiveTopArtists] = useState<Artist[]>([]);
   const [recentlyPlayed, setRecentlyPlayed] = useState<{ track: Track; playedAt: string }[]>([]);
-  const [livePlaylists, setLivePlaylists] = useState<{ id: string; name: string; imageUrl: string | null; owner: string; trackCount: number }[]>([]);
+  const [livePlaylists, setLivePlaylists] = useState<{ id: string; name: string; imageUrl: string | null; owner: string; ownerId: string; trackCount: number }[]>([]);
   const [explanations, setExplanations] = useState<Record<string, string>>({});
 
   const mockPlayback = usePlaybackSimulation();
@@ -126,11 +126,12 @@ export function SpotifyProvider({ children }: Props) {
 
       if (playlistsRes?.items) {
         setLivePlaylists(
-          playlistsRes.items.map((p: { id: string; name: string; images: { url: string }[]; owner: { display_name: string }; tracks: { total: number } }) => ({
+          playlistsRes.items.map((p: { id: string; name: string; images: { url: string }[]; owner: { display_name: string; id: string }; tracks: { total: number } }) => ({
             id: p.id,
             name: p.name,
             imageUrl: p.images?.[0]?.url ?? null,
             owner: p.owner?.display_name ?? '',
+            ownerId: p.owner?.id ?? '',
             trackCount: p.tracks?.total ?? 0,
           })),
         );

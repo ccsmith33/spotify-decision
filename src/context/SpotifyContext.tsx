@@ -34,7 +34,7 @@ export interface SpotifyContextValue {
   topTracks: Track[];
   topArtists: Artist[];
   recentlyPlayed: { track: Track; playedAt: string }[];
-  playlists: { id: string; name: string; imageUrl: string | null; owner: string; trackCount: number }[];
+  playlists: { id: string; name: string; imageUrl: string | null; owner: string; ownerId: string; trackCount: number }[];
   explanations: Record<string, string>;
   audioFeatures: Record<string, SpotifyAudioFeature>;
 }
