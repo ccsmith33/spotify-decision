@@ -2,12 +2,25 @@ import 'dotenv/config';
 import express from 'express';
 import path from 'path';
 import fs from 'fs';
-import { execFile } from 'child_process';
-import { promisify } from 'util';
+import { spawn } from 'child_process';
 import { fileURLToPath } from 'url';
 import { buildExplanationPrompt } from './prompt.js';
 
-const execFileAsync = promisify(execFile);
+function runClaude(claudePath: string, args: string[], options: { timeout: number; env: NodeJS.ProcessEnv }): Promise<{ stdout: string; stderr: string }> {
+  return new Promise((resolve, reject) => {
+    const child = spawn(claudePath, args, {
+      stdio: ['ignore', 'pipe', 'pipe'],
+      env: options.env,
+    });
+    let stdout = '';
+    let stderr = '';
+    child.stdout.on('data', (d: Buffer) => { stdout += d.toString(); });
+    child.stderr.on('data', (d: Buffer) => { stderr += d.toString(); });
+    const timer = setTimeout(() => { child.kill('SIGTERM'); reject(Object.assign(new Error('timeout'), { killed: true })); }, options.timeout);
+    child.on('close', (code) => { clearTimeout(timer); if (code !== 0 && !stdout) { reject(new Error(`exit code ${code}`)); } else { resolve({ stdout, stderr }); } });
+    child.on('error', (err) => { clearTimeout(timer); reject(err); });
+  });
+}
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
@@ -351,7 +364,7 @@ app.get('/api/spotify/token', async (_req, res) => {
 // --- Claude explanation endpoint ---
 app.post('/api/explain', async (req, res) => {
   try {
-    const { trackName, artistName, userTopGenres, userTopArtists, popularity, matchReasons } = req.body;
+    const { trackName, artistName, userTopGenres, userTopArtists, popularity, matchReasons, position, source, artistRank } = req.body;
 
     if (!trackName || !artistName) {
       res.status(400).json({ error: 'trackName and artistName are required' });
@@ -365,12 +378,14 @@ app.post('/api/explain', async (req, res) => {
       userTopArtists,
       popularity,
       matchReasons,
+      position,
+      source,
+      artistRank,
     });
 
     const claudePath = process.env.CLAUDE_PATH || '/usr/bin/claude';
-    const { stdout, stderr } = await execFileAsync(claudePath, ['-p', prompt], {
+    const { stdout, stderr } = await runClaude(claudePath, ['-p', prompt], {
       timeout: CLAUDE_TIMEOUT_MS,
-      maxBuffer: 1024 * 1024,
       env: { ...process.env, HOME: process.env.HOME || '/root' },
     });
 

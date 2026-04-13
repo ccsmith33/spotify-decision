@@ -44,16 +44,24 @@ export function DemoPage({ detailLevel, onDetailLevelChange }: DemoPageProps) {
     const topArtistNames = topArtists.slice(0, 5).map(a => a.name);
 
     // Card 1: Your Top Mix
+    const genreFactors = topGenres.slice(0, 5).map(([genre, count]) => ({
+      name: genre,
+      weight: count / totalGenreMentions,
+      description: `${Math.round((count / totalGenreMentions) * 100)}% of your top artists are in this genre.`,
+    }));
+    // Fallback when no genre data is available from top artists
+    const card1Factors = genreFactors.length > 0 ? genreFactors : [
+      { name: 'Your Favorites', weight: 0.45, description: 'Tracks and artists you play the most' },
+      { name: 'Similar Artists', weight: 0.35, description: 'Artists related to your listening history' },
+      { name: 'New Discoveries', weight: 0.20, description: 'Fresh picks the algorithm thinks you\'ll enjoy' },
+    ];
+
     const card1Decision: AlgorithmDecision = {
       id: 'live-dec-top-mix',
       type: 'playlist_curation',
       timestamp: new Date().toISOString(),
       description: `Your Top Mix is built around ${topArtistNames.slice(0, 3).join(', ')} and similar artists.`,
-      factors: topGenres.slice(0, 5).map(([genre, count]) => ({
-        name: genre,
-        weight: count / totalGenreMentions,
-        description: `${Math.round((count / totalGenreMentions) * 100)}% of your top artists are in this genre.`,
-      })),
+      factors: card1Factors,
       confidence: 0.92,
       trackIds: topTracks.slice(0, 5).map(t => t.id),
       explanationId: 'live-exp-top-mix',

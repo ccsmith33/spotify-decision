@@ -1,14 +1,20 @@
-interface ExplanationInput {
+export interface ExplanationInput {
   trackName: string;
   artistName: string;
   userTopGenres?: string[];
   userTopArtists?: string[];
   popularity?: number;
   matchReasons?: string[];
+  position?: number;
+  source?: 'top_tracks' | 'recently_played' | 'mixed';
+  artistRank?: number;
 }
 
 export function buildExplanationPrompt(input: ExplanationInput): string {
-  const { trackName, artistName, userTopGenres, userTopArtists, popularity, matchReasons } = input;
+  const {
+    trackName, artistName, userTopGenres, userTopArtists,
+    popularity, matchReasons, position, source, artistRank,
+  } = input;
 
   let genreSection = '';
   if (userTopGenres && userTopGenres.length > 0) {
@@ -30,6 +36,23 @@ export function buildExplanationPrompt(input: ExplanationInput): string {
     reasonSection = `\nMatch signals: ${matchReasons.join('; ')}`;
   }
 
+  let positionSection = '';
+  if (position !== undefined) {
+    positionSection = `\nThis track is #${position + 1} in the listener's recommendation list.`;
+  }
+
+  let sourceSection = '';
+  if (source === 'top_tracks') {
+    sourceSection = '\nThis track comes from the listener\'s top tracks (a confirmed favorite).';
+  } else if (source === 'recently_played') {
+    sourceSection = '\nThis track comes from the listener\'s recently played (current rotation).';
+  }
+
+  let artistRankSection = '';
+  if (artistRank !== undefined) {
+    artistRankSection = `\n${artistName} is #${artistRank + 1} in the listener's top artists.`;
+  }
+
   return `You are Spotify's algorithmic transparency feature. Explain why "${trackName}" by ${artistName} was recommended to this listener.
 
 Provide three tiers of explanation. Respond with ONLY valid JSON — no markdown, no code fences, no extra text. Use this exact structure:
@@ -37,14 +60,20 @@ Provide three tiers of explanation. Respond with ONLY valid JSON — no markdown
 {"basic":"...","detailed":"...","technical":"..."}
 
 Tier rules:
-- basic: 1 casual sentence, no numbers or percentages (e.g. "Matches your indie rock taste")
-- detailed: 2-3 sentences about listening patterns, artist connections, and genre alignment
+- basic: 1 casual sentence, no numbers or percentages. Mention "${trackName}" or "${artistName}" by name.
+- detailed: 2-3 sentences about listening patterns, artist connections, and genre alignment. Reference "${trackName}" and "${artistName}" specifically.
 - technical: Breakdown with genre overlap analysis, popularity metrics, listening frequency patterns, and artist similarity scoring
 
-Use second person ("you" / "your"). Sound like a knowledgeable music friend, not a robot.
-${genreSection}${artistSection}${popularitySection}${reasonSection}
+Each explanation must be UNIQUE. Do NOT use phrases like "fits right in", "matches your taste", or "right up your alley". Instead, reference SPECIFIC details about THIS track and THIS artist. Mention the track name and artist by name. Be conversational and specific.
 
-Context: This track has been in the listener's heavy rotation recently, surfaced from their top tracks and recent listening history.
+Vary your sentence structure:
+- Some should start with the artist name
+- Some should start with a listening pattern observation
+- Some should start with a genre reference
+- Never start two explanations the same way
+
+Use second person ("you" / "your"). Sound like a knowledgeable music friend, not a robot.
+${genreSection}${artistSection}${popularitySection}${reasonSection}${positionSection}${sourceSection}${artistRankSection}
 
 Rules:
 - Respond with ONLY the JSON object, nothing else

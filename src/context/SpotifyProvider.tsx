@@ -32,14 +32,25 @@ function buildFallbackExplanation(
   artistName: string,
   topGenres: string[],
   topArtistNames: string[],
+  position?: number,
 ): ThreeTierExplanation {
   const isTopArtist = topArtistNames.some(
     a => a.toLowerCase() === artistName.toLowerCase(),
   );
 
+  // Position-aware prefix for the basic tier
+  let positionHint: string;
+  if (position !== undefined && position < 3) {
+    positionHint = `One of your current favorites --`;
+  } else if (position !== undefined && position < 7) {
+    positionHint = `A staple in your recent rotation --`;
+  } else {
+    positionHint = `Rising in your listening patterns --`;
+  }
+
   if (isTopArtist) {
     return {
-      basic: `You've been listening to ${artistName} a lot recently.`,
+      basic: `${positionHint} you've been playing a lot of ${artistName}.`,
       detailed: `"${trackName}" appears because ${artistName} is one of your most-played artists. The algorithm surfaces tracks from artists you engage with frequently.`,
       technical: `"${trackName}" by ${artistName} ranked via artist-affinity score derived from your recent play history. ${artistName} is in your top-artist cluster, triggering high-confidence recommendation.`,
     };
@@ -48,14 +59,14 @@ function buildFallbackExplanation(
   if (topGenres.length > 0) {
     const genre = topGenres[0];
     return {
-      basic: `Based on your taste in ${genre}.`,
+      basic: `${positionHint} ${artistName} fits your ${genre} rotation.`,
       detailed: `"${trackName}" by ${artistName} matches your interest in ${genre}. The algorithm found sonic and genre similarities to music you enjoy.`,
       technical: `"${trackName}" by ${artistName} recommended via genre-affinity vector. Your top genre cluster includes ${topGenres.slice(0, 3).join(', ')}, and this track's genre embedding has high cosine similarity.`,
     };
   }
 
   return {
-    basic: `Picked for you based on your recent listening.`,
+    basic: `${positionHint} "${trackName}" by ${artistName} caught the algorithm's attention.`,
     detailed: `"${trackName}" by ${artistName} was selected based on patterns in your recent listening sessions.`,
     technical: `"${trackName}" by ${artistName} recommended via collaborative filtering on implicit feedback signals from recent session history.`,
   };
@@ -172,47 +183,70 @@ export function SpotifyProvider({ children }: Props) {
           }
         }
 
-        // Fetch Claude explanations in parallel (three-tier)
-        const explanationResults = await Promise.allSettled(
-          recTracks.map(async (track: SpotifyTrack) => {
-            const trackArtistName = track.artists[0]?.name ?? '';
-            const fallback = buildFallbackExplanation(track.name, trackArtistName, uniqueGenres, topArtistNames);
-            try {
-              const response = await fetch('/api/explain', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  trackName: track.name,
-                  artistName: trackArtistName,
-                  userTopGenres: uniqueGenres,
-                  userTopArtists: topArtistNames,
-                  popularity: track.popularity,
-                  matchReasons: ['Based on your listening history', 'In your recent heavy rotation'],
-                }),
-              });
-              if (response.ok) {
-                const data = await response.json();
-                const exp = data.explanation;
-                if (typeof exp === 'string') {
-                  return { trackId: track.id, explanation: { basic: exp, detailed: exp, technical: exp } };
-                }
-                return {
-                  trackId: track.id,
-                  explanation: {
-                    basic: exp.basic ?? fallback.basic,
-                    detailed: exp.detailed ?? fallback.detailed,
-                    technical: exp.technical ?? fallback.technical,
-                  },
-                };
-              }
-              console.warn(`Claude /api/explain returned ${response.status} for "${track.name}" — using fallback`);
-              return { trackId: track.id, explanation: fallback };
-            } catch (err) {
-              console.warn(`Claude /api/explain failed for "${track.name}":`, err);
-              return { trackId: track.id, explanation: fallback };
-            }
-          }),
+        // Build a set of top-track IDs so we can determine source
+        const topTrackIds = new Set(
+          topTracksRes?.items?.map((t: SpotifyTrack) => t.id) ?? [],
         );
+
+        // Fetch Claude explanations in batches of 3 (to avoid overwhelming the droplet)
+        const CONCURRENCY = 3;
+        type ExplanationResult = { trackId: string; explanation: ThreeTierExplanation };
+        const explanationResults: PromiseSettledResult<ExplanationResult>[] = [];
+
+        for (let i = 0; i < recTracks.length; i += CONCURRENCY) {
+          const batch = recTracks.slice(i, i + CONCURRENCY);
+          const batchResults = await Promise.allSettled(
+            batch.map(async (track: SpotifyTrack, batchIdx: number) => {
+              const index = i + batchIdx;
+              const trackArtistName = track.artists[0]?.name ?? '';
+              const fallback = buildFallbackExplanation(track.name, trackArtistName, uniqueGenres, topArtistNames, index);
+
+              const source = topTrackIds.has(track.id) ? 'top_tracks' : 'recently_played';
+              const artistRankIdx = topArtistNames.findIndex(
+                n => n.toLowerCase() === trackArtistName.toLowerCase(),
+              );
+
+              try {
+                const response = await fetch('/api/explain', {
+                  method: 'POST',
+                  headers: { 'Content-Type': 'application/json' },
+                  body: JSON.stringify({
+                    trackName: track.name,
+                    artistName: trackArtistName,
+                    userTopGenres: uniqueGenres,
+                    userTopArtists: topArtistNames,
+                    popularity: track.popularity,
+                    matchReasons: ['Based on your listening history', 'In your recent heavy rotation'],
+                    position: index,
+                    source,
+                    artistRank: artistRankIdx >= 0 ? artistRankIdx : undefined,
+                  }),
+                });
+                if (response.ok) {
+                  const data = await response.json();
+                  const exp = data.explanation;
+                  if (typeof exp === 'string') {
+                    return { trackId: track.id, explanation: { basic: exp, detailed: exp, technical: exp } };
+                  }
+                  return {
+                    trackId: track.id,
+                    explanation: {
+                      basic: exp.basic ?? fallback.basic,
+                      detailed: exp.detailed ?? fallback.detailed,
+                      technical: exp.technical ?? fallback.technical,
+                    },
+                  };
+                }
+                console.warn(`Claude /api/explain returned ${response.status} for "${track.name}" — using fallback`);
+                return { trackId: track.id, explanation: fallback };
+              } catch (err) {
+                console.warn(`Claude /api/explain failed for "${track.name}":`, err);
+                return { trackId: track.id, explanation: fallback };
+              }
+            }),
+          );
+          explanationResults.push(...batchResults);
+        }
 
         const expMap: Record<string, ThreeTierExplanation> = {};
         const legacyExpMap: Record<string, string> = {};
