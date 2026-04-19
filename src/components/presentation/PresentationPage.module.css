@@ -75,3 +75,480 @@
   color: var(--color-green);
   height: 3px;
 }
+
+/* Title slide (slide 1) */
+.titleSlide {
+  text-align: center;
+}
+
+.courseTag {
+  font-size: 0.9em;
+  color: var(--color-green-light);
+  margin-bottom: 0.5em;
+}
+
+.titleLine {
+  margin-bottom: 0.3em;
+}
+
+.titleLineLast {
+  margin-bottom: 1em;
+}
+
+.titleSubtitle {
+  font-size: 1em;
+  color: var(--text-secondary);
+  margin-bottom: 2em;
+}
+
+.titleTagline {
+  font-size: 0.95em;
+  color: var(--text-subdued);
+  font-style: italic;
+  margin-bottom: 3em;
+}
+
+.titleDate {
+  font-size: 0.85em;
+  color: var(--text-subdued);
+}
+
+/* Agenda (slide 2) */
+.agendaGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2em;
+  margin-top: 1.5em;
+}
+
+.agendaItem {
+  display: block;
+}
+
+.agendaItemWide {
+  grid-column: 1 / -1;
+}
+
+.agendaLabel {
+  color: var(--color-green-light);
+  font-weight: bold;
+  margin-bottom: 0.5em;
+}
+
+.agendaHint {
+  font-size: 0.85em;
+  color: var(--text-secondary);
+}
+
+/* Problem Space (slide 3) */
+.sectionBody {
+  margin-top: 1.5em;
+}
+
+.subsection {
+  margin-bottom: 1.5em;
+}
+
+.accentHeading {
+  color: var(--color-green-light);
+  font-size: 1.1em;
+  margin-bottom: 0.5em;
+}
+
+.tensionsList {
+  column-count: 2;
+  font-size: 0.9em;
+}
+
+/* Process (slide 4) */
+.processBody {
+  margin-top: 1em;
+  font-size: 0.95em;
+}
+
+.phaseGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5em;
+}
+
+.phaseCard {
+  display: block;
+}
+
+.phaseTitle {
+  color: var(--color-green-light);
+  font-weight: bold;
+  margin-bottom: 0.3em;
+}
+
+.phaseBody {
+  font-size: 0.9em;
+}
+
+.phaseCallout {
+  margin-top: 1.5em;
+  padding: 1em;
+  background-color: rgba(29, 185, 84, 0.1);
+  border-left: 4px solid var(--color-green);
+}
+
+.insightNote {
+  margin-top: 1.5em;
+  font-size: 0.85em;
+  font-style: italic;
+  color: var(--text-subdued);
+}
+
+/* Data model entities (slide 5) */
+.italicLead {
+  font-size: 0.95em;
+  margin-bottom: 1.5em;
+  font-style: italic;
+}
+
+.entityGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5em;
+  font-size: 0.9em;
+}
+
+.entityBody {
+  font-size: 0.95em;
+}
+
+/* ERD (slide 6) */
+.erdWrap {
+  margin-top: 1em;
+  padding: 1em;
+  background-color: rgba(29, 185, 84, 0.05);
+  border-radius: 8px;
+}
+
+.erdSvg {
+  width: 100%;
+  max-height: 380px;
+}
+
+.erdBox {
+  fill: rgba(29, 185, 84, 0.2);
+  stroke: var(--color-green);
+  stroke-width: 2;
+}
+
+.erdTitle {
+  font-size: 12px;
+  font-weight: bold;
+  fill: var(--color-green-light);
+}
+
+.erdField {
+  font-size: 10px;
+  fill: var(--text-secondary);
+}
+
+.erdEdge {
+  stroke: var(--color-green);
+  stroke-width: 1.5;
+}
+
+.erdCardinality {
+  font-size: 10px;
+  fill: var(--text-subdued);
+}
+
+/* Backlog (slide 7) */
+.backlogBody {
+  margin-top: 1em;
+  font-size: 0.85em;
+}
+
+.backlogBlock {
+  margin-bottom: 1em;
+}
+
+.backlogHeadP0 {
+  color: var(--color-green);
+  font-weight: bold;
+  margin-bottom: 0.5em;
+}
+
+.backlogHeadP1 {
+  color: var(--color-green-light);
+  font-weight: bold;
+  margin-bottom: 0.5em;
+}
+
+.backlogHeadP2 {
+  color: var(--text-secondary);
+  font-weight: bold;
+  margin-bottom: 0.5em;
+}
+
+.backlogList {
+  margin-left: 1em;
+}
+
+.backlogListSm {
+  margin-left: 1em;
+  font-size: 0.9em;
+}
+
+/* Roadmap (slide 8) */
+.roadmapWrap {
+  margin-top: 1em;
+}
+
+.roadmapSvg {
+  width: 100%;
+  max-height: 180px;
+}
+
+.roadmapVersion {
+  fill: var(--color-green-light);
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.roadmapDate {
+  fill: var(--text-secondary);
+  font-size: 12px;
+}
+
+.roadmapDetails {
+  margin-top: 1em;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75em;
+}
+
+.roadmapCard {
+  padding: 0.75em;
+  background-color: rgba(29, 185, 84, 0.1);
+  border-radius: 8px;
+  border-left: 4px solid var(--color-green);
+}
+
+.roadmapCardCurrent {
+  padding: 0.75em;
+  background-color: rgba(29, 185, 84, 0.25);
+  border-radius: 8px;
+  border-left: 4px solid var(--color-green);
+}
+
+.roadmapList {
+  font-size: 0.75em;
+  margin-left: 1em;
+}
+
+.roadmapList li {
+  font-size: 0.75em;
+  line-height: 1.4;
+  margin-bottom: 0.2em;
+}
+
+/* Testing protocol (slide 9) */
+.protocolGrid {
+  margin-top: 1.5em;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 2em;
+}
+
+.personaList {
+  font-size: 0.9em;
+}
+
+.personaName {
+  font-weight: bold;
+}
+
+.personaHint {
+  font-size: 0.85em;
+  color: var(--text-secondary);
+}
+
+.mt1 {
+  margin-top: 1em;
+}
+
+.mt05 {
+  margin-top: 0.5em;
+}
+
+/* Results matrix heatmap (slide 10) */
+.matrixWrap {
+  margin-top: 1em;
+}
+
+.matrixSvg {
+  width: 100%;
+  max-height: 320px;
+}
+
+.matrixHeader {
+  fill: var(--color-green-light);
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.matrixRowLabel {
+  fill: var(--text-primary);
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.matrixCellText {
+  fill: #0a0a0a;
+  font-size: 18px;
+  font-weight: bold;
+}
+
+.matrixScale {
+  font-size: 0.85em;
+  color: var(--text-secondary);
+  margin-bottom: 0.5em;
+}
+
+.subduedLabel {
+  color: var(--text-subdued);
+}
+
+.matrixFinding {
+  padding: 0.75em;
+  background-color: rgba(29, 185, 84, 0.1);
+  border-radius: 4px;
+  border-left: 3px solid var(--color-green);
+}
+
+.matrixFindingText {
+  font-size: 0.85em;
+  color: var(--text-secondary);
+}
+
+.bold {
+  font-weight: bold;
+}
+
+/* Portal features (slide 11) */
+.featuresBody {
+  margin-top: 1.2em;
+  font-size: 0.9em;
+}
+
+.featuresGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5em;
+}
+
+.featureCard {
+  padding: 1em;
+  background-color: rgba(29, 185, 84, 0.1);
+  border-radius: 6px;
+}
+
+.featureTitle {
+  color: var(--color-green-light);
+  font-weight: bold;
+  margin-bottom: 0.3em;
+}
+
+.featureBody {
+  font-size: 0.85em;
+  margin-bottom: 0.3em;
+}
+
+.featureStories {
+  font-size: 0.75em;
+  color: var(--text-subdued);
+}
+
+.featuresFooter {
+  margin-top: 1.5em;
+  padding: 1em;
+  background-color: rgba(29, 185, 84, 0.15);
+  border-radius: 6px;
+  text-align: center;
+}
+
+.featuresFooterText {
+  font-size: 0.85em;
+  color: var(--text-subdued);
+}
+
+/* Takeaways (slide 12) */
+.takeawaysGrid {
+  margin-top: 1.5em;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5em;
+  font-size: 0.9em;
+}
+
+.takeawayCard {
+  padding: 1em;
+  background-color: rgba(29, 185, 84, 0.1);
+  border-radius: 6px;
+  border-top: 3px solid var(--color-green);
+}
+
+.takeawayCardWide {
+  padding: 1em;
+  background-color: rgba(29, 185, 84, 0.1);
+  border-radius: 6px;
+  border-top: 3px solid var(--color-green);
+  grid-column: 1 / -1;
+}
+
+.takeawayTitle {
+  color: var(--color-green-light);
+  font-weight: bold;
+  margin-bottom: 0.5em;
+}
+
+.takeawayBody {
+  font-size: 0.85em;
+}
+
+/* Thanks (slide 13) */
+.thanksSlide {
+  text-align: center;
+}
+
+.thanksTitle {
+  margin-bottom: 1em;
+}
+
+.thanksPortalLine {
+  font-size: 1.1em;
+  color: var(--text-secondary);
+  margin-bottom: 1em;
+}
+
+.thanksCourseLine {
+  font-size: 0.95em;
+  color: var(--text-subdued);
+  margin-bottom: 2em;
+}
+
+.thanksQA {
+  font-size: 1em;
+  color: var(--color-green-light);
+  font-weight: bold;
+  margin-bottom: 2em;
+}
+
+.thanksAppendices {
+  padding: 1.5em;
+  background-color: rgba(29, 185, 84, 0.1);
+  border-radius: 8px;
+  display: inline-block;
+}
+
+.thanksAppendixItem {
+  font-size: 0.9em;
+  margin-bottom: 0.5em;
+  color: var(--text-secondary);
+}

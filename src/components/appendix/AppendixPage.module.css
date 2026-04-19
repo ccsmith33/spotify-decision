@@ -1,5 +1,12 @@
 .page {
   padding: var(--spacing-lg);
+  display: flex;
+  justify-content: center;
+}
+
+.essay {
+  max-width: 720px;
+  width: 100%;
 }
 
 .title {
@@ -9,80 +16,9 @@
   margin-bottom: var(--spacing-lg);
 }
 
-.sectionCard {
-  background: var(--bg-card);
-  border-radius: var(--radius-lg);
-  margin-bottom: var(--spacing-sm);
-  overflow: hidden;
-}
-
-.sectionHeader {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: var(--spacing-base) var(--spacing-lg);
-  cursor: pointer;
-  transition: background-color var(--transition-fast);
-  width: 100%;
-  text-align: left;
-}
-
-.sectionHeader:hover {
-  background: var(--bg-card-hover);
-}
-
-.sectionNumber {
-  width: 28px;
-  height: 28px;
-  border-radius: var(--radius-circle);
-  background: var(--bg-elevated);
-  color: var(--text-primary);
-  font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-bold);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  margin-right: var(--spacing-md);
-}
-
-.sectionInfo {
-  flex: 1;
-}
-
-.sectionName {
-  font-size: var(--font-size-md);
-  font-weight: var(--font-weight-bold);
-  color: var(--text-primary);
-}
-
-.sectionDescription {
-  font-size: var(--font-size-sm);
-  color: var(--text-secondary);
-  margin-top: var(--spacing-xxs);
-}
-
-.chevron {
-  color: var(--text-subdued);
-  transition: transform var(--transition-base);
-  flex-shrink: 0;
-}
-
-.chevronOpen {
-  transform: rotate(180deg);
-}
-
-.sectionContent {
-  padding: 0 var(--spacing-lg) var(--spacing-lg);
+.paragraph {
   font-size: var(--font-size-base);
   color: var(--text-secondary);
-  line-height: 1.6;
-}
-
-.placeholderText {
-  background: var(--bg-elevated);
-  border-radius: var(--radius-md);
-  padding: var(--spacing-base);
-  color: var(--text-subdued);
-  font-style: italic;
+  line-height: 1.8;
+  margin-bottom: var(--spacing-md);
 }

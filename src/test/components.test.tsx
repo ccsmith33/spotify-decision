@@ -364,20 +364,23 @@ describe('Other Tabs', () => {
   });
 
   describe('AppendixPage', () => {
-    it('renders all 6 sections', () => {
+    it('renders the Project Reflection heading', () => {
       render(<AppendixPage />);
-      expect(screen.getByText('Project Brief & Background')).toBeInTheDocument();
-      expect(screen.getByText('Data Model')).toBeInTheDocument();
-      expect(screen.getByText('User Testing')).toBeInTheDocument();
-      expect(screen.getByText('Product Backlog & Sprint Planning')).toBeInTheDocument();
-      expect(screen.getByText('Change Management')).toBeInTheDocument();
-      expect(screen.getByText('Technical Approach')).toBeInTheDocument();
+      expect(screen.getByText('Project Reflection')).toBeInTheDocument();
     });
 
-    it('expands a section on click', () => {
+    it('renders writeup prose from the semester reflection', () => {
       render(<AppendixPage />);
-      fireEvent.click(screen.getByText('Project Brief & Background'));
-      expect(screen.getByText(/This section will contain the project brief/)).toBeInTheDocument();
+      expect(
+        screen.getByText(/how this project developed over the semester/i)
+      ).toBeInTheDocument();
+    });
+
+    it('renders all four reflection paragraphs', () => {
+      render(<AppendixPage />);
+      expect(screen.getByText(/A lot of the middle assignments/i)).toBeInTheDocument();
+      expect(screen.getByText(/The data modeling work/i)).toBeInTheDocument();
+      expect(screen.getByText(/Overall, the semester's assignments/i)).toBeInTheDocument();
     });
   });
 });
