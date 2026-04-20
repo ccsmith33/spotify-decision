@@ -34,6 +34,12 @@ import {
   FileBarChart,
   Megaphone,
   PlayCircle,
+  Rocket,
+  Globe,
+  AlertTriangle,
+  Building2,
+  Code2,
+  Mic2,
 } from 'lucide-react';
 import styles from './PresentationPage.module.css';
 
@@ -158,7 +164,7 @@ export function PresentationPage() {
               <div className={styles.agendaItem}>
                 <div className={styles.agendaNumber}>02</div>
                 <p className={styles.agendaLabel}>Semester process recap</p>
-                <p className={styles.agendaHint}>How assignments shaped the solution</p>
+                <p className={styles.agendaHint}>How semester assignments shaped the solution</p>
               </div>
               <div className={styles.agendaItem}>
                 <div className={styles.agendaNumber}>03</div>
@@ -202,6 +208,11 @@ export function PresentationPage() {
               <div className={styles.problemLeft}>
                 <h3>The Case</h3>
                 <p>
+                  A large consumer digital platform faces mounting pressure around AI transparency.
+                  Automated systems determine: which content users see, how requests are prioritized,
+                  and who gets access to opportunities.
+                </p>
+                <p>
                   The problem was intentionally open-ended. No consensus existed on what transparency
                   should look like, how fairness should be defined, or what role humans should play.
                 </p>
@@ -242,12 +253,22 @@ export function PresentationPage() {
                 </div>
               </div>
             </div>
+            <div className={styles.roleCallout}>
+              <span className={styles.roleCalloutTag}>Our role</span>
+              <p className={styles.roleCalloutText}>
+                Analyze the problem space, gather requirements, and design a system that balances
+                org goals, ethics, and user needs.
+              </p>
+            </div>
           </section>
 
           {/* Slide 4: Process Overview */}
           <section>
             <div className={styles.slideAccentBar} />
             <h2>02 | Process Overview</h2>
+            <p className={styles.italicLead}>
+              How semester assignments shaped our final solution
+            </p>
             <div className={styles.phaseFlow}>
               <div className={styles.phaseNode}>
                 <div className={styles.phaseCircle}>
@@ -280,9 +301,9 @@ export function PresentationPage() {
                 <div className={styles.phaseCircle}>
                   <Briefcase size={18} strokeWidth={2.2} />
                 </div>
-                <p className={styles.phaseLabel}>Phase 4: Rollout Planning</p>
+                <p className={styles.phaseLabel}>Phase 4: Change Management</p>
                 <p className={styles.phaseDesc}>
-                  Phased deployment with stakeholder engagement
+                  Phased rollout with stakeholder engagement and risk mitigation
                 </p>
               </div>
               <div className={styles.phaseNode}>
@@ -360,6 +381,24 @@ export function PresentationPage() {
                   </p>
                 </div>
               </div>
+              <div className={styles.entityCard}>
+                <span className={styles.entityIcon}>
+                  <Hand size={18} strokeWidth={2} />
+                </span>
+                <div className={styles.entityBodyWrap}>
+                  <p className={styles.entityTitle}>Appeals</p>
+                  <p className={styles.entityBody}>
+                    Represents human-in-the-loop processes. Users can challenge automated decisions,
+                    improving accountability.
+                  </p>
+                </div>
+              </div>
+            </div>
+            <div className={styles.dataModelCallout}>
+              <p className={styles.dataModelCalloutText}>
+                The data model gave the website its structure: recommendation transparency, fairness
+                metrics, decision history, and appeals — not one vague &ldquo;AI info&rdquo; page.
+              </p>
             </div>
           </section>
 
@@ -739,6 +778,23 @@ export function PresentationPage() {
                     interpretation. Recommend a simplified tier for less-engaged users.
                   </p>
                 </div>
+                <div className={styles.keyInsightStack}>
+                  <div className={styles.keyInsightCard}>
+                    <span className={styles.keyInsightName}>Power Users</span>
+                    <span className={styles.keyInsightAvg}>avg 5.0</span>
+                    <span className={styles.keyInsightHint}>Fully engaged with technical detail</span>
+                  </div>
+                  <div className={styles.keyInsightCard}>
+                    <span className={styles.keyInsightName}>Music-Focused</span>
+                    <span className={styles.keyInsightAvg}>avg 4.25</span>
+                    <span className={styles.keyInsightHint}>Competent with clear explanations</span>
+                  </div>
+                  <div className={styles.keyInsightCard}>
+                    <span className={styles.keyInsightName}>Casual Users</span>
+                    <span className={styles.keyInsightAvg}>avg 2.5</span>
+                    <span className={styles.keyInsightHint}>Need simplified tier</span>
+                  </div>
+                </div>
                 <p className={styles.matrixScale}>
                   Scale: 1–5 (5 = task completed easily, 1 = unable to complete)
                 </p>
@@ -746,10 +802,193 @@ export function PresentationPage() {
             </div>
           </section>
 
-          {/* Slide 11: Portal Features */}
+          {/* Slide 11: Change Management & Phased Rollout */}
           <section>
             <div className={styles.slideAccentBar} />
-            <h2>09 | Portal Features — What Made It Into V2.1</h2>
+            <h2>09 | Change Management &amp; Phased Rollout</h2>
+            <div className={styles.phaseRolloutGrid}>
+              <div className={styles.phaseRolloutCard}>
+                <div className={styles.phaseRolloutHead}>
+                  <span className={styles.phaseRolloutBadge}>
+                    <Rocket size={16} strokeWidth={2.2} />
+                    <span>Phase 1</span>
+                  </span>
+                  <span className={styles.phaseRolloutWindow}>Wks 1–4 · 5–10%</span>
+                </div>
+                <p className={styles.phaseRolloutTitle}>Limited Beta</p>
+                <p className={styles.phaseRolloutSection}>Success Metrics</p>
+                <ul className={styles.phaseRolloutList}>
+                  <li>≥80% task completion</li>
+                  <li>≥4/5 confidence</li>
+                  <li>No engagement regression</li>
+                </ul>
+                <p className={styles.phaseRolloutSection}>Channels</p>
+                <p className={styles.phaseRolloutChannels}>
+                  Direct invites, think-aloud testing, bi-weekly check-ins
+                </p>
+              </div>
+              <div className={styles.phaseRolloutCard}>
+                <div className={styles.phaseRolloutHead}>
+                  <span className={styles.phaseRolloutBadge}>
+                    <Users size={16} strokeWidth={2.2} />
+                    <span>Phase 2</span>
+                  </span>
+                  <span className={styles.phaseRolloutWindow}>Wks 5–12 · 25–40%</span>
+                </div>
+                <p className={styles.phaseRolloutTitle}>Broader Rollout</p>
+                <p className={styles.phaseRolloutSection}>Success Metrics</p>
+                <ul className={styles.phaseRolloutList}>
+                  <li>Adoption ≥35%</li>
+                  <li>Appeal SLA ≤7 days</li>
+                  <li>Artist awareness confirmed</li>
+                </ul>
+                <p className={styles.phaseRolloutSection}>Channels</p>
+                <p className={styles.phaseRolloutChannels}>
+                  In-app announcements, weekly research, monthly all-hands
+                </p>
+              </div>
+              <div className={styles.phaseRolloutCard}>
+                <div className={styles.phaseRolloutHead}>
+                  <span className={`${styles.phaseRolloutBadge} ${styles.phaseRolloutBadgeActive}`}>
+                    <Globe size={16} strokeWidth={2.2} />
+                    <span>Phase 3</span>
+                  </span>
+                  <span className={styles.phaseRolloutWindow}>Wk 13+ · 100%</span>
+                </div>
+                <p className={styles.phaseRolloutTitle}>Full Launch</p>
+                <p className={styles.phaseRolloutSection}>Success Metrics</p>
+                <ul className={styles.phaseRolloutList}>
+                  <li>Discoverability ≥60%</li>
+                  <li>Trust scores improved</li>
+                  <li>Zero compliance violations</li>
+                </ul>
+                <p className={styles.phaseRolloutSection}>Channels</p>
+                <p className={styles.phaseRolloutChannels}>
+                  Platform-wide notifications, press, quarterly fairness reports
+                </p>
+              </div>
+            </div>
+            <div className={styles.gateCallout}>
+              <AlertCircle size={16} strokeWidth={2.2} color="#1ed760" style={{ flexShrink: 0 }} />
+              <p className={styles.gateCalloutText}>
+                <strong>Go/No-Go gates at Week 4 &amp; Week 12</strong> — pause and iterate if metrics
+                are not met before expanding.
+              </p>
+            </div>
+          </section>
+
+          {/* Slide 12: Stakeholders & Risk Management */}
+          <section>
+            <div className={styles.slideAccentBar} />
+            <h2>10 | Stakeholders &amp; Risk Management</h2>
+            <div className={styles.stakeholdersLayout}>
+              <div className={styles.stakeholdersColumn}>
+                <p className={styles.protocolHeading}>
+                  <Users size={14} strokeWidth={2.2} />
+                  Engagement Sequence
+                </p>
+                <div className={styles.stakeholderCard}>
+                  <span className={styles.stakeholderNum}>1</span>
+                  <div className={styles.stakeholderBody}>
+                    <div className={styles.stakeholderHead}>
+                      <span className={styles.stakeholderIcon}>
+                        <ShieldCheck size={16} strokeWidth={2} />
+                      </span>
+                      <span className={styles.stakeholderName}>Privacy Advocates / Regulators</span>
+                      <span className={`${styles.stanceChip} ${styles.stanceSupportive}`}>SUPPORTIVE</span>
+                    </div>
+                    <p className={styles.stakeholderNote}>
+                      Engage first to validate compliance posture.
+                    </p>
+                  </div>
+                </div>
+                <div className={styles.stakeholderCard}>
+                  <span className={styles.stakeholderNum}>2</span>
+                  <div className={styles.stakeholderBody}>
+                    <div className={styles.stakeholderHead}>
+                      <span className={styles.stakeholderIcon}>
+                        <Code2 size={16} strokeWidth={2} />
+                      </span>
+                      <span className={styles.stakeholderName}>Engineering &amp; Algorithm Teams</span>
+                      <span className={`${styles.stanceChip} ${styles.stanceResistant}`}>RESISTANT</span>
+                    </div>
+                    <p className={styles.stakeholderNote}>
+                      Address workload and IP concerns before code ships.
+                    </p>
+                  </div>
+                </div>
+                <div className={styles.stakeholderCard}>
+                  <span className={styles.stakeholderNum}>3</span>
+                  <div className={styles.stakeholderBody}>
+                    <div className={styles.stakeholderHead}>
+                      <span className={styles.stakeholderIcon}>
+                        <Building2 size={16} strokeWidth={2} />
+                      </span>
+                      <span className={styles.stakeholderName}>Executive Leadership</span>
+                      <span className={`${styles.stanceChip} ${styles.stanceMixed}`}>MIXED</span>
+                    </div>
+                    <p className={styles.stakeholderNote}>
+                      Need budget approval + strategic alignment.
+                    </p>
+                  </div>
+                </div>
+                <div className={styles.stakeholderCard}>
+                  <span className={styles.stakeholderNum}>4</span>
+                  <div className={styles.stakeholderBody}>
+                    <div className={styles.stakeholderHead}>
+                      <span className={styles.stakeholderIcon}>
+                        <Mic2 size={16} strokeWidth={2} />
+                      </span>
+                      <span className={styles.stakeholderName}>Independent Artists</span>
+                      <span className={`${styles.stanceChip} ${styles.stanceSupportive}`}>SUPPORTIVE</span>
+                    </div>
+                    <p className={styles.stakeholderNote}>
+                      Engage last; only promise once metrics are proven.
+                    </p>
+                  </div>
+                </div>
+              </div>
+              <div className={styles.stakeholdersColumn}>
+                <p className={styles.protocolHeading}>
+                  <AlertTriangle size={14} strokeWidth={2.2} />
+                  Major Risks &amp; Mitigations
+                </p>
+                <div className={styles.riskCard}>
+                  <p className={styles.riskTitle}>Appeal Overload</p>
+                  <p className={styles.riskMitigation}>
+                    Pilot appeals in Phase 2; scale review team before full launch.
+                  </p>
+                </div>
+                <div className={styles.riskCard}>
+                  <p className={styles.riskTitle}>Bias Discovered in Audit</p>
+                  <p className={styles.riskMitigation}>
+                    Pre-commit to visible action plan with published timeline.
+                  </p>
+                </div>
+                <div className={styles.riskCard}>
+                  <p className={styles.riskTitle}>Perceived as Performative</p>
+                  <p className={styles.riskMitigation}>
+                    Report tangible outcomes; publish concrete fairness metrics.
+                  </p>
+                </div>
+                <div className={styles.riskCard}>
+                  <p className={styles.riskTitle}>Engineering Scalability</p>
+                  <p className={styles.riskMitigation}>
+                    Stress-test in Phases 1–2; dedicate ops team before Phase 3.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Slide 13: Portal Features */}
+          <section>
+            <div className={styles.slideAccentBar} />
+            <h2>11 | Portal Features — What Made It Into V2.1</h2>
+            <p className={styles.italicLead}>
+              The Algorithmic Fairness &amp; Transparency Portal — four core sections, each grounded
+              in a semester of work
+            </p>
             <div className={styles.featuresGrid}>
               <div className={styles.featureCard}>
                 <div className={styles.featureHead}>
@@ -769,7 +1008,8 @@ export function PresentationPage() {
                   <p className={styles.featureTitle}>Fairness &amp; Oversight</p>
                 </div>
                 <p className={styles.featureBody}>
-                  Current metrics with targets, independent artist visibility monitoring
+                  Current fairness metrics with targets, independent artist visibility monitoring,
+                  and monthly audit results displayed in real time.
                 </p>
                 <p className={styles.featureStories}>Stories #4, #8</p>
               </div>
@@ -793,14 +1033,15 @@ export function PresentationPage() {
                   <p className={styles.featureTitle}>Appeal &amp; Review</p>
                 </div>
                 <p className={styles.featureBody}>
-                  Structured process: form submission, 5–7 business day SLA, human review
+                  Structured process to challenge decisions: form submission, 5–7 business day SLA,
+                  human review team, and outcome notification.
                 </p>
                 <p className={styles.featureStories}>Stories #5, #10</p>
               </div>
             </div>
             <div className={styles.featuresFooter}>
               <p className={styles.featuresFooterText}>
-                Prototype Version 2.1 · Tested April 1–3, 2026
+                Prototype Version 2.1 · Tested April 1–3, 2026 · MIS 430 Spring 2026
               </p>
             </div>
           </section>
@@ -825,7 +1066,7 @@ export function PresentationPage() {
                 <div className={styles.takeawayBodyWrap}>
                   <p className={styles.takeawayTitle}>Every assignment built on the last</p>
                   <p className={styles.takeawayBody}>
-                    Backlog → data model → prototype → testing → rollout planning. Nothing existed in
+                    Backlog → data model → prototype → testing → change management. Nothing existed in
                     isolation.
                   </p>
                 </div>
@@ -843,17 +1084,17 @@ export function PresentationPage() {
               <div className={styles.takeawayCard}>
                 <div className={styles.takeawayNumber}>04</div>
                 <div className={styles.takeawayBodyWrap}>
-                  <p className={styles.takeawayTitle}>Design for the least-engaged visitor</p>
+                  <p className={styles.takeawayTitle}>Design for the casual user</p>
                   <p className={styles.takeawayBody}>
-                    Tech-literate users will find their way; the confused person determines if the
-                    portal truly works.
+                    Tech-literate users will find their way; it&apos;s the confused user who determines
+                    if the portal truly works.
                   </p>
                 </div>
               </div>
               <div className={styles.takeawayCardWide}>
                 <div className={styles.takeawayNumber}>05</div>
                 <div className={styles.takeawayBodyWrap}>
-                  <p className={styles.takeawayTitle}>Transparency is a product problem</p>
+                  <p className={styles.takeawayTitle}>Transparency is a product problem, not just a legal one</p>
                   <p className={styles.takeawayBody}>
                     How information is presented matters as much as what is disclosed.
                   </p>
@@ -869,8 +1110,8 @@ export function PresentationPage() {
                 <span /><span /><span /><span /><span /><span /><span /><span />
               </div>
               <h1 className={styles.thanksTitle}>Thank You</h1>
-              <p className={styles.thanksPortalLine}>Transparency Portal · Questions &amp; Discussion</p>
-              <p className={styles.thanksCourseLine}>Spring 2026 Project Closeout</p>
+              <p className={styles.thanksPortalLine}>Algorithmic Fairness &amp; Transparency Portal</p>
+              <p className={styles.thanksCourseLine}>MIS 430 · Spring 2026 Project Closeout</p>
               <p className={styles.thanksQA}>
                 <Headphones size={18} strokeWidth={2.2} style={{ marginRight: 8, verticalAlign: 'middle' }} />
                 Questions &amp; Discussion
@@ -886,11 +1127,11 @@ export function PresentationPage() {
                 </span>
                 <span className={styles.thanksAppendixPill}>
                   <FileBarChart size={13} strokeWidth={2} />
-                  Usability Test Report
+                  User Testing Report
                 </span>
                 <span className={styles.thanksAppendixPill}>
                   <Megaphone size={13} strokeWidth={2} />
-                  Rollout &amp; Stakeholder Plan
+                  Change Management Plan
                 </span>
               </div>
             </div>

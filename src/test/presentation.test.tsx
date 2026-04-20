@@ -27,25 +27,25 @@ describe('PresentationPage', () => {
 
   it('renders the title slide', () => {
     render(<PresentationPage />);
-    expect(screen.getByText(/Algorithmic Fairness/i)).toBeInTheDocument();
-    expect(screen.getByText(/MIS 430/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Algorithmic Fairness/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/MIS 430/i).length).toBeGreaterThan(0);
   });
 
   it('renders the agenda slide with all seven sections', () => {
     render(<PresentationPage />);
     expect(screen.getByText(/Today's Agenda/i)).toBeInTheDocument();
-    expect(screen.getByText(/Problem Space/i)).toBeInTheDocument();
-    expect(screen.getByText(/Process Overview/i)).toBeInTheDocument();
-    expect(screen.getByText(/Data Modeling/i)).toBeInTheDocument();
-    expect(screen.getByText(/Prioritized Backlog/i)).toBeInTheDocument();
-    expect(screen.getByText(/User Testing/i)).toBeInTheDocument();
-    expect(screen.getByText(/Change Management/i)).toBeInTheDocument();
-    expect(screen.getByText(/Final Prototype/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Problem Space/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Process Overview/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Data Modeling/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Prioritized Backlog/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/User Testing/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Change Management/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Final Prototype/i).length).toBeGreaterThan(0);
   });
 
   it('renders the process phases slide', () => {
     render(<PresentationPage />);
-    expect(screen.getByText(/Phase 1/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Phase 1/i).length).toBeGreaterThan(0);
     expect(screen.getByText(/Phase 5/i)).toBeInTheDocument();
   });
 
@@ -80,9 +80,9 @@ describe('PresentationPage', () => {
 
   it('renders the user testing protocol slide with personas and tasks', () => {
     render(<PresentationPage />);
-    expect(screen.getByText(/Power User/i)).toBeInTheDocument();
-    expect(screen.getByText(/Music-Focused/i)).toBeInTheDocument();
-    expect(screen.getByText(/Casual User/i)).toBeInTheDocument();
+    expect(screen.getAllByText(/Power User/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Music-Focused/i).length).toBeGreaterThan(0);
+    expect(screen.getAllByText(/Casual User/i).length).toBeGreaterThan(0);
   });
 
   it('renders the user testing results matrix with visual heatmap', () => {
@@ -108,9 +108,9 @@ describe('PresentationPage', () => {
     expect(screen.getByText(/Thank You/i)).toBeInTheDocument();
   });
 
-  it('renders 13 reveal.js sections', () => {
+  it('renders all reveal.js sections', () => {
     const { container } = render(<PresentationPage />);
     const sections = container.querySelectorAll('.reveal .slides > section');
-    expect(sections.length).toBe(13);
+    expect(sections.length).toBe(15);
   });
 });
