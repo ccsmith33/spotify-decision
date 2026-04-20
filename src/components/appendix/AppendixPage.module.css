@@ -1,24 +1,344 @@
 .page {
-  padding: var(--spacing-lg);
-  display: flex;
-  justify-content: center;
+  padding: var(--spacing-2xl) var(--spacing-lg) var(--spacing-2xl) var(--spacing-lg);
+  max-width: 820px;
+  margin: 0 auto;
+  position: relative;
+  animation: appearUp 500ms cubic-bezier(0.4, 0, 0.2, 1) both;
 }
 
-.essay {
-  max-width: 720px;
-  width: 100%;
+@keyframes appearUp {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Ambient Spotify green glow behind the hero header */
+.heroGlow {
+  position: absolute;
+  top: -80px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 700px;
+  height: 400px;
+  background: radial-gradient(ellipse at center, rgba(29, 185, 84, 0.14), transparent 65%);
+  filter: blur(30px);
+  pointer-events: none;
+  z-index: 0;
+}
+
+/* ============================================================
+   Hero header (editorial style)
+   ============================================================ */
+.heroHeader {
+  position: relative;
+  z-index: 1;
+  margin-bottom: var(--spacing-xl);
+}
+
+.tagRow {
+  margin-bottom: var(--spacing-base);
+}
+
+.kindTag {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  font-size: 0.7em;
+  letter-spacing: 0.2em;
+  text-transform: uppercase;
+  color: var(--color-green-light);
+  font-weight: 700;
+  padding: 0.4em 0.9em;
+  background: rgba(29, 185, 84, 0.1);
+  border: 1px solid rgba(29, 185, 84, 0.3);
+  border-radius: 9999px;
 }
 
 .title {
-  font-size: var(--font-size-2xl);
-  font-weight: var(--font-weight-bold);
+  font-size: 3.2em;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  line-height: 1.05;
   color: var(--text-primary);
-  margin-bottom: var(--spacing-lg);
+  margin: 0 0 0.25em 0;
+  background: linear-gradient(135deg, #ffffff 0%, #e6e6e6 65%, #1ed760 120%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+.subtitle {
+  font-size: 1.15em;
+  color: var(--text-secondary);
+  font-weight: 500;
+  margin: 0 0 1em 0;
+  letter-spacing: -0.005em;
+}
+
+.metaRow {
+  display: flex;
+  align-items: center;
+  gap: 0.6em;
+  flex-wrap: wrap;
+  padding-top: var(--spacing-sm);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.metaItem {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  font-size: 0.78em;
+  color: var(--text-subdued);
+  font-weight: 500;
+  letter-spacing: 0.02em;
+}
+
+.metaDot {
+  width: 3px;
+  height: 3px;
+  border-radius: 50%;
+  background: var(--text-subdued);
+  opacity: 0.5;
+}
+
+/* Static equalizer divider (Spotify motif) */
+.eqDivider {
+  display: flex;
+  align-items: flex-end;
+  gap: 2px;
+  height: 18px;
+  margin-top: 1.2em;
+}
+
+.eqDivider span {
+  display: block;
+  width: 3px;
+  border-radius: 2px;
+  background: linear-gradient(180deg, var(--color-green-light), var(--color-green));
+  opacity: 0.85;
+}
+
+.eqDivider span:nth-child(1) { height: 30%; }
+.eqDivider span:nth-child(2) { height: 70%; }
+.eqDivider span:nth-child(3) { height: 50%; }
+.eqDivider span:nth-child(4) { height: 95%; }
+.eqDivider span:nth-child(5) { height: 60%; }
+.eqDivider span:nth-child(6) { height: 40%; opacity: 0.6; }
+.eqDivider span:nth-child(7) { height: 25%; opacity: 0.5; }
+.eqDivider span:nth-child(8) { height: 15%; opacity: 0.35; }
+
+/* ============================================================
+   Essay body
+   ============================================================ */
+.essay {
+  position: relative;
+  z-index: 1;
+  max-width: 680px;
+  width: 100%;
+}
+
+.paragraphWrap {
+  position: relative;
 }
 
 .paragraph {
-  font-size: var(--font-size-base);
+  font-size: 1.05em;
   color: var(--text-secondary);
-  line-height: 1.8;
-  margin-bottom: var(--spacing-md);
+  line-height: 1.75;
+  margin-bottom: var(--spacing-lg);
+  letter-spacing: 0.003em;
+}
+
+/* Drop cap on the lead paragraph */
+.paragraphLead::first-letter {
+  float: left;
+  font-size: 3.4em;
+  line-height: 0.9;
+  padding: 0.08em 0.12em 0 0;
+  margin-right: 0.08em;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--color-green-light), var(--color-green));
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  letter-spacing: -0.04em;
+}
+
+/* Thin green-dot divider between paragraphs */
+.sectionDivider {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 var(--spacing-lg) 0;
+  height: 10px;
+}
+
+.sectionDivider::before,
+.sectionDivider::after {
+  content: '';
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.08), transparent);
+  max-width: 200px;
+}
+
+.sectionDivider::before {
+  background: linear-gradient(90deg, transparent, rgba(29, 185, 84, 0.2));
+}
+
+.sectionDivider::after {
+  background: linear-gradient(90deg, rgba(29, 185, 84, 0.2), transparent);
+}
+
+/* Pull quote */
+.pullQuote {
+  position: relative;
+  margin: var(--spacing-xl) 0 var(--spacing-lg) 0;
+  padding: 1.4em 1.6em 1.4em 2em;
+  background: linear-gradient(135deg, rgba(29, 185, 84, 0.1), rgba(29, 185, 84, 0.03));
+  border-left: 3px solid var(--color-green);
+  border-radius: 12px;
+}
+
+.pullQuoteMark {
+  position: absolute;
+  top: 0.1em;
+  left: 0.3em;
+  font-size: 4em;
+  line-height: 1;
+  color: rgba(29, 185, 84, 0.25);
+  font-family: Georgia, serif;
+  font-weight: 700;
+  pointer-events: none;
+}
+
+.pullQuoteText {
+  font-size: 1.15em;
+  line-height: 1.5;
+  color: var(--text-primary);
+  font-weight: 500;
+  font-style: italic;
+  letter-spacing: -0.005em;
+  margin: 0 0 0.5em 0;
+  position: relative;
+}
+
+.pullQuoteAttrib {
+  font-size: 0.78em;
+  color: var(--color-green-light);
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+/* ============================================================
+   Related appendices
+   ============================================================ */
+.relatedSection {
+  position: relative;
+  z-index: 1;
+  margin-top: var(--spacing-2xl);
+  padding-top: var(--spacing-xl);
+  border-top: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+.relatedHeader {
+  margin-bottom: var(--spacing-base);
+}
+
+.relatedTitle {
+  font-size: 1.3em;
+  font-weight: 700;
+  color: var(--text-primary);
+  letter-spacing: -0.015em;
+  margin: 0 0 0.25em 0;
+}
+
+.relatedHint {
+  font-size: 0.85em;
+  color: var(--text-subdued);
+  margin: 0;
+}
+
+.relatedGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+  gap: var(--spacing-md);
+  margin-top: var(--spacing-base);
+}
+
+.relatedCard {
+  display: flex;
+  align-items: center;
+  gap: 0.9em;
+  padding: 0.9em 1em;
+  background: var(--bg-card);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+  border-radius: 12px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  transition: transform 200ms cubic-bezier(0.4, 0, 0.2, 1), border-color 200ms, background 200ms;
+  cursor: default;
+  position: relative;
+}
+
+.relatedCard:hover {
+  transform: translateY(-2px);
+  border-color: rgba(29, 185, 84, 0.3);
+  background: var(--bg-card-hover);
+}
+
+.relatedIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  background: rgba(29, 185, 84, 0.12);
+  border: 1px solid rgba(29, 185, 84, 0.25);
+  border-radius: 10px;
+  color: var(--color-green-light);
+  flex-shrink: 0;
+}
+
+.relatedBody {
+  flex: 1;
+  min-width: 0;
+}
+
+.relatedCardTitle {
+  font-size: 0.95em;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0 0 0.2em 0;
+  line-height: 1.2;
+}
+
+.relatedCardSubtitle {
+  font-size: 0.78em;
+  color: var(--text-subdued);
+  line-height: 1.4;
+  margin: 0;
+}
+
+.relatedAccent {
+  display: inline-flex;
+  align-items: center;
+  font-size: 0.65em;
+  color: var(--color-green-light);
+  background: rgba(29, 185, 84, 0.1);
+  border: 1px solid rgba(29, 185, 84, 0.2);
+  border-radius: 9999px;
+  padding: 0.25em 0.7em;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-weight: 700;
+  flex-shrink: 0;
 }

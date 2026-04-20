@@ -1,3 +1,12 @@
+import {
+  GraduationCap,
+  Calendar,
+  Clock,
+  FileText,
+  Database,
+  FileBarChart,
+  Megaphone,
+} from 'lucide-react';
 import styles from './AppendixPage.module.css';
 
 const paragraphs = [
@@ -7,17 +16,116 @@ const paragraphs = [
   "Overall, the semester's assignments helped us move from a broad idea to a much more complete and realistic website. Instead of just making something that looked good, we were constantly using earlier work to justify what belonged in the portal and how it should function. Things like planning, process thinking, and change management made us think beyond the prototype itself and more about how something like this would actually be rolled out and used in a real organization. So the final website really reflects the whole semester process of understanding the problem, narrowing the priorities, and turning that into a more practical solution.",
 ];
 
+const relatedAppendices = [
+  {
+    icon: FileText,
+    title: 'Prioritized Product Backlog',
+    subtitle: 'MoSCoW ranked · 11 stories',
+    accent: 'P0 Must-Have',
+  },
+  {
+    icon: Database,
+    title: 'Data Model (ERD)',
+    subtitle: '7 entities · decisions, appeals, audits',
+    accent: 'Architecture',
+  },
+  {
+    icon: FileBarChart,
+    title: 'Usability Test Report',
+    subtitle: 'April 1–3, 2026 · 3 personas · 4 tasks',
+    accent: 'Validation',
+  },
+  {
+    icon: Megaphone,
+    title: 'Rollout & Stakeholder Plan',
+    subtitle: 'Phased deployment · change management',
+    accent: 'Delivery',
+  },
+];
+
 export function AppendixPage() {
   return (
     <div className={styles.page}>
-      <article className={styles.essay}>
+      <div className={styles.heroGlow} aria-hidden="true" />
+
+      <header className={styles.heroHeader}>
+        <div className={styles.tagRow}>
+          <span className={styles.kindTag}>
+            <GraduationCap size={13} strokeWidth={2.5} />
+            Editorial · Reflection
+          </span>
+        </div>
         <h1 className={styles.title}>Project Reflection</h1>
+        <p className={styles.subtitle}>How the semester shaped the portal</p>
+        <div className={styles.metaRow}>
+          <span className={styles.metaItem}>
+            <Calendar size={13} strokeWidth={2} />
+            MIS 430 · Spring 2026
+          </span>
+          <span className={styles.metaDot} aria-hidden="true" />
+          <span className={styles.metaItem}>Final Project</span>
+          <span className={styles.metaDot} aria-hidden="true" />
+          <span className={styles.metaItem}>
+            <Clock size={13} strokeWidth={2} />
+            4 min read
+          </span>
+        </div>
+        <div className={styles.eqDivider} aria-hidden="true">
+          <span /><span /><span /><span /><span /><span /><span /><span />
+        </div>
+      </header>
+
+      <article className={styles.essay}>
         {paragraphs.map((paragraph, index) => (
-          <p key={index} className={styles.paragraph}>
-            {paragraph}
-          </p>
+          <div key={index} className={styles.paragraphWrap}>
+            {index > 0 && <div className={styles.sectionDivider} aria-hidden="true" />}
+            <p
+              className={
+                index === 0
+                  ? `${styles.paragraph} ${styles.paragraphLead}`
+                  : styles.paragraph
+              }
+            >
+              {paragraph}
+            </p>
+          </div>
         ))}
+
+        <aside className={styles.pullQuote}>
+          <span className={styles.pullQuoteMark} aria-hidden="true">&ldquo;</span>
+          <p className={styles.pullQuoteText}>
+            We were constantly using earlier work to justify what belonged in the portal and how it
+            should function.
+          </p>
+          <p className={styles.pullQuoteAttrib}>— Project reflection</p>
+        </aside>
       </article>
+
+      <section className={styles.relatedSection}>
+        <div className={styles.relatedHeader}>
+          <h2 className={styles.relatedTitle}>Related Appendices</h2>
+          <p className={styles.relatedHint}>
+            Supporting artifacts referenced throughout this reflection
+          </p>
+        </div>
+        <div className={styles.relatedGrid}>
+          {relatedAppendices.map((item) => {
+            const Icon = item.icon;
+            return (
+              <div key={item.title} className={styles.relatedCard}>
+                <span className={styles.relatedIcon}>
+                  <Icon size={22} strokeWidth={2} />
+                </span>
+                <div className={styles.relatedBody}>
+                  <p className={styles.relatedCardTitle}>{item.title}</p>
+                  <p className={styles.relatedCardSubtitle}>{item.subtitle}</p>
+                </div>
+                <span className={styles.relatedAccent}>{item.accent}</span>
+              </div>
+            );
+          })}
+        </div>
+      </section>
     </div>
   );
 }

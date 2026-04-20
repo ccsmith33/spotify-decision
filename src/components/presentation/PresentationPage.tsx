@@ -1,6 +1,40 @@
 import { useEffect, useRef } from 'react';
 import Reveal from 'reveal.js';
 import 'reveal.js/dist/reveal.css';
+import {
+  SearchCode,
+  Scale,
+  Users,
+  ClipboardCheck,
+  UserCircle,
+  Target,
+  ListChecks,
+  Database,
+  Briefcase,
+  FlaskConical,
+  AlertCircle,
+  TrendingUp,
+  Sparkles,
+  Music2,
+  Eye,
+  ShieldCheck,
+  History,
+  Hand,
+  User,
+  UserMinus,
+  Headphones,
+  Calendar,
+  BarChart3,
+  Lightbulb,
+  MessageSquare,
+  GraduationCap,
+  ArrowRight,
+  FileText,
+  Network,
+  FileBarChart,
+  Megaphone,
+  PlayCircle,
+} from 'lucide-react';
 import styles from './PresentationPage.module.css';
 
 const GREEN = '#1DB954';
@@ -50,7 +84,9 @@ export function PresentationPage() {
       hash: false,
       controls: true,
       progress: true,
-      transition: 'slide',
+      transition: 'fade',
+      transitionSpeed: 'default',
+      backgroundTransition: 'fade',
       width: '100%',
       height: '100%',
       margin: 0,
@@ -72,120 +108,196 @@ export function PresentationPage() {
           {/* Slide 1: Title Slide */}
           <section>
             <div className={styles.titleSlide}>
-              <p className={styles.courseTag}>MIS 430 · Spring 2026</p>
+              <p className={styles.courseTag}>
+                <GraduationCap size={14} strokeWidth={2.5} />
+                MIS 430 · Spring 2026
+              </p>
               <h1 className={styles.titleLine}>Algorithmic Fairness &amp;</h1>
               <h1 className={styles.titleLineLast}>Transparency Portal</h1>
+              <div className={styles.eqDivider} aria-hidden="true">
+                <span /><span /><span /><span /><span /><span /><span /><span />
+              </div>
               <p className={styles.titleSubtitle}>
                 Music Streaming Platform · Project Closeout Presentation
               </p>
               <p className={styles.titleTagline}>
                 From ambiguous case to working prototype — a semester of iterative systems design
               </p>
-              <p className={styles.titleDate}>April 2026</p>
+              <div className={styles.titleMetaRow}>
+                <p className={styles.titleMetaItem}>
+                  <Calendar size={13} strokeWidth={2} />
+                  April 2026
+                </p>
+                <p className={styles.titleMetaItem}>
+                  <PlayCircle size={13} strokeWidth={2} />
+                  Project Closeout
+                </p>
+                <p className={styles.titleMetaItem}>
+                  <span className={styles.eqMotif} aria-hidden="true">
+                    <span className={styles.eqBar} />
+                    <span className={styles.eqBar} />
+                    <span className={styles.eqBar} />
+                    <span className={styles.eqBar} />
+                  </span>
+                  Now Presenting
+                </p>
+              </div>
             </div>
           </section>
 
           {/* Slide 2: Agenda */}
           <section>
+            <div className={styles.slideAccentBar} />
             <h2>Today&apos;s Agenda</h2>
             <div className={styles.agendaGrid}>
               <div className={styles.agendaItem}>
-                <p className={styles.agendaLabel}>01 · Why this problem is hard</p>
+                <div className={styles.agendaNumber}>01</div>
+                <p className={styles.agendaLabel}>Why this problem is hard</p>
                 <p className={styles.agendaHint}>The case, the challenge, the ambiguity</p>
               </div>
               <div className={styles.agendaItem}>
-                <p className={styles.agendaLabel}>02 · Semester process recap</p>
+                <div className={styles.agendaNumber}>02</div>
+                <p className={styles.agendaLabel}>Semester process recap</p>
                 <p className={styles.agendaHint}>How assignments shaped the solution</p>
               </div>
               <div className={styles.agendaItem}>
-                <p className={styles.agendaLabel}>03 · System data architecture</p>
+                <div className={styles.agendaNumber}>03</div>
+                <p className={styles.agendaLabel}>System data architecture</p>
                 <p className={styles.agendaHint}>What the system needs behind the scenes</p>
               </div>
               <div className={styles.agendaItem}>
-                <p className={styles.agendaLabel}>04 · MoSCoW feature ranking</p>
+                <div className={styles.agendaNumber}>04</div>
+                <p className={styles.agendaLabel}>MoSCoW feature ranking</p>
                 <p className={styles.agendaHint}>MoSCoW prioritization &amp; sprint planning</p>
               </div>
               <div className={styles.agendaItem}>
-                <p className={styles.agendaLabel}>05 · Usability study outcomes</p>
+                <div className={styles.agendaNumber}>05</div>
+                <p className={styles.agendaLabel}>Usability study outcomes</p>
                 <p className={styles.agendaHint}>What worked, what didn&apos;t, what we improved</p>
               </div>
               <div className={styles.agendaItem}>
-                <p className={styles.agendaLabel}>06 · Change Management &amp; Rollout</p>
+                <div className={styles.agendaNumber}>06</div>
+                <p className={styles.agendaLabel}>Change Management &amp; Rollout</p>
                 <p className={styles.agendaHint}>Stakeholders, risks, and phased deployment</p>
               </div>
-              <div className={styles.agendaItemWide}>
-                <p className={styles.agendaLabel}>07 · Final Prototype &amp; reflections</p>
+              <div className={styles.agendaItem}>
+                <div className={styles.agendaNumber}>07</div>
+                <p className={styles.agendaLabel}>Final Prototype &amp; reflections</p>
                 <p className={styles.agendaHint}>The portal and closing thoughts</p>
+              </div>
+              <div className={`${styles.agendaItem} ${styles.agendaItemCTA}`}>
+                <div className={styles.agendaCTAInner}>
+                  <ArrowRight size={24} strokeWidth={2.2} />
+                  <p className={styles.agendaCTALabel}>Let&apos;s Begin</p>
+                </div>
               </div>
             </div>
           </section>
 
           {/* Slide 3: Problem Space */}
           <section>
+            <div className={styles.slideAccentBar} />
             <h2>01 | Problem Space &amp; Project Background</h2>
-            <div className={styles.sectionBody}>
-              <div className={styles.subsection}>
-                <h3 className={styles.accentHeading}>The Case</h3>
+            <div className={styles.problemLayout}>
+              <div className={styles.problemLeft}>
+                <h3>The Case</h3>
                 <p>
                   The problem was intentionally open-ended. No consensus existed on what transparency
                   should look like, how fairness should be defined, or what role humans should play.
                 </p>
               </div>
               <div>
-                <h3 className={styles.accentHeading}>Key Tensions We Had to Resolve</h3>
-                <ul className={styles.tensionsList}>
-                  <li>🔍 Transparency vs. IP protection</li>
-                  <li>⚖️ User trust vs. org risk</li>
-                  <li>🤝 Fairness vs. algorithm performance</li>
-                  <li>📋 Accountability vs. complexity</li>
-                  <li>👤 Individual vs. aggregate metrics</li>
-                </ul>
+                <h3>Key Tensions We Had to Resolve</h3>
+                <div className={styles.tensionsStack}>
+                  <div className={styles.tensionChip}>
+                    <span className={styles.tensionIcon}>
+                      <SearchCode size={16} strokeWidth={2} />
+                    </span>
+                    <span>Transparency vs. IP protection</span>
+                  </div>
+                  <div className={styles.tensionChip}>
+                    <span className={styles.tensionIcon}>
+                      <Users size={16} strokeWidth={2} />
+                    </span>
+                    <span>User trust vs. org risk</span>
+                  </div>
+                  <div className={styles.tensionChip}>
+                    <span className={styles.tensionIcon}>
+                      <Scale size={16} strokeWidth={2} />
+                    </span>
+                    <span>Fairness vs. algorithm performance</span>
+                  </div>
+                  <div className={styles.tensionChip}>
+                    <span className={styles.tensionIcon}>
+                      <ClipboardCheck size={16} strokeWidth={2} />
+                    </span>
+                    <span>Accountability vs. complexity</span>
+                  </div>
+                  <div className={styles.tensionChip}>
+                    <span className={styles.tensionIcon}>
+                      <UserCircle size={16} strokeWidth={2} />
+                    </span>
+                    <span>Individual vs. aggregate metrics</span>
+                  </div>
+                </div>
               </div>
             </div>
           </section>
 
           {/* Slide 4: Process Overview */}
           <section>
+            <div className={styles.slideAccentBar} />
             <h2>02 | Process Overview</h2>
-            <div className={styles.processBody}>
-              <div className={styles.phaseGrid}>
-                <div className={styles.phaseCard}>
-                  <p className={styles.phaseTitle}>Phase 1: Problem Definition</p>
-                  <p className={styles.phaseBody}>
-                    Understood fairness, trust, and transparency concerns from multiple stakeholder
-                    perspectives
-                  </p>
+            <div className={styles.phaseFlow}>
+              <div className={styles.phaseNode}>
+                <div className={styles.phaseCircle}>
+                  <Target size={18} strokeWidth={2.2} />
                 </div>
-                <div className={styles.phaseCard}>
-                  <p className={styles.phaseTitle}>Phase 2: Backlog &amp; Prioritization</p>
-                  <p className={styles.phaseBody}>
-                    Identified must-have features: plain-language explanations, fairness metrics, and
-                    appeal process
-                  </p>
-                </div>
-                <div className={styles.phaseCard}>
-                  <p className={styles.phaseTitle}>Phase 3: System Data Design</p>
-                  <p className={styles.phaseBody}>
-                    Designed backend structure for algorithm decisions, explanations, audits, and
-                    appeals
-                  </p>
-                </div>
-                <div className={styles.phaseCard}>
-                  <p className={styles.phaseTitle}>Phase 4: Rollout Planning</p>
-                  <p className={styles.phaseBody}>
-                    Planned phased deployment with stakeholder engagement and risk mitigation
-                    strategies
-                  </p>
-                </div>
-              </div>
-              <div className={styles.phaseCallout}>
-                <p className={styles.phaseTitle}>Phase 5: Usability Validation</p>
-                <p className={styles.phaseBody}>
-                  Validated prototype with 3 users; achieved 100% completion with clear improvement
-                  areas
+                <p className={styles.phaseLabel}>Phase 1: Problem Definition</p>
+                <p className={styles.phaseDesc}>
+                  Fairness, trust, and transparency from multiple stakeholder views
                 </p>
               </div>
-              <p className={styles.insightNote}>
+              <div className={styles.phaseNode}>
+                <div className={styles.phaseCircle}>
+                  <ListChecks size={18} strokeWidth={2.2} />
+                </div>
+                <p className={styles.phaseLabel}>Phase 2: Backlog &amp; Prioritization</p>
+                <p className={styles.phaseDesc}>
+                  Must-haves: explanations, fairness metrics, appeals
+                </p>
+              </div>
+              <div className={styles.phaseNode}>
+                <div className={styles.phaseCircle}>
+                  <Database size={18} strokeWidth={2.2} />
+                </div>
+                <p className={styles.phaseLabel}>Phase 3: System Data Design</p>
+                <p className={styles.phaseDesc}>
+                  Backend structure for decisions, audits, appeals
+                </p>
+              </div>
+              <div className={styles.phaseNode}>
+                <div className={styles.phaseCircle}>
+                  <Briefcase size={18} strokeWidth={2.2} />
+                </div>
+                <p className={styles.phaseLabel}>Phase 4: Rollout Planning</p>
+                <p className={styles.phaseDesc}>
+                  Phased deployment with stakeholder engagement
+                </p>
+              </div>
+              <div className={styles.phaseNode}>
+                <div className={`${styles.phaseCircle} ${styles.phaseCircleActive}`}>
+                  <FlaskConical size={18} strokeWidth={2.2} />
+                </div>
+                <p className={styles.phaseLabel}>Phase 5: Usability Validation</p>
+                <p className={styles.phaseDesc}>
+                  Validated with 3 users; 100% task completion
+                </p>
+              </div>
+            </div>
+            <div className={styles.insightCallout}>
+              <Lightbulb size={18} strokeWidth={2.2} color="#1ed760" style={{ flexShrink: 0 }} />
+              <p className={styles.insightCalloutText}>
                 Key insight: Every assignment fed into the next — we were never just building
                 deliverables, we were building understanding.
               </p>
@@ -194,46 +306,72 @@ export function PresentationPage() {
 
           {/* Slide 5: Data Modeling & Architecture */}
           <section>
+            <div className={styles.slideAccentBar} />
             <h2>03 | Data Modeling &amp; Architecture</h2>
             <p className={styles.italicLead}>
               Key Design Decision: Separate system functionality from transparency features
             </p>
             <div className={styles.entityGrid}>
-              <div>
-                <p className={styles.phaseTitle}>Algorithm Decisions</p>
-                <p className={styles.entityBody}>
-                  Tracks not just what content is shown, but how and why decisions are made. Exists
-                  independently from recommendations.
-                </p>
+              <div className={styles.entityCard}>
+                <span className={styles.entityIcon}>
+                  <Network size={18} strokeWidth={2} />
+                </span>
+                <div className={styles.entityBodyWrap}>
+                  <p className={styles.entityTitle}>Algorithm Decisions</p>
+                  <p className={styles.entityBody}>
+                    Tracks not just what content is shown, but how and why decisions are made. Exists
+                    independently from recommendations.
+                  </p>
+                </div>
               </div>
-              <div>
-                <p className={styles.phaseTitle}>Explanations</p>
-                <p className={styles.entityBody}>
-                  Stores different explanation tiers for user-facing transparency without exposing
-                  proprietary algorithm logic.
-                </p>
+              <div className={styles.entityCard}>
+                <span className={styles.entityIcon}>
+                  <MessageSquare size={18} strokeWidth={2} />
+                </span>
+                <div className={styles.entityBodyWrap}>
+                  <p className={styles.entityTitle}>Explanations</p>
+                  <p className={styles.entityBody}>
+                    Stores different explanation tiers for user-facing transparency without exposing
+                    proprietary algorithm logic.
+                  </p>
+                </div>
               </div>
-              <div>
-                <p className={styles.phaseTitle}>Fairness Audits</p>
-                <p className={styles.entityBody}>
-                  Enables monitoring for bias — especially major-label vs. independent artist
-                  visibility disparities.
-                </p>
+              <div className={styles.entityCard}>
+                <span className={styles.entityIcon}>
+                  <ShieldCheck size={18} strokeWidth={2} />
+                </span>
+                <div className={styles.entityBodyWrap}>
+                  <p className={styles.entityTitle}>Fairness Audits</p>
+                  <p className={styles.entityBody}>
+                    Enables monitoring for bias — especially major-label vs. independent artist
+                    visibility disparities.
+                  </p>
+                </div>
               </div>
-              <div>
-                <p className={styles.phaseTitle}>Interactions</p>
-                <p className={styles.entityBody}>
-                  Supports analysis of how engagement-driven algorithms influence recommendation
-                  outcomes.
-                </p>
+              <div className={styles.entityCard}>
+                <span className={styles.entityIcon}>
+                  <BarChart3 size={18} strokeWidth={2} />
+                </span>
+                <div className={styles.entityBodyWrap}>
+                  <p className={styles.entityTitle}>Interactions</p>
+                  <p className={styles.entityBody}>
+                    Supports analysis of how engagement-driven algorithms influence recommendation
+                    outcomes.
+                  </p>
+                </div>
               </div>
             </div>
           </section>
 
           {/* Slide 6: Data Model ERD */}
           <section>
+            <div className={styles.slideAccentBar} />
             <h2>04 | Data Model — Entity Relationship Diagram</h2>
-            <div className={styles.erdWrap}>
+            <div className={styles.erdPanel}>
+              <div className={styles.erdPanelHeader}>
+                <Database size={14} strokeWidth={2.2} color="#1ed760" />
+                <p className={styles.erdPanelTitle}>Schema Overview</p>
+              </div>
               <svg
                 data-testid="erd-diagram"
                 viewBox="0 0 900 460"
@@ -311,11 +449,16 @@ export function PresentationPage() {
 
           {/* Slide 7: Prioritized Backlog */}
           <section>
+            <div className={styles.slideAccentBar} />
             <h2>05 | Prioritized Backlog</h2>
-            <div className={styles.backlogBody}>
-              <div className={styles.backlogBlock}>
-                <p className={styles.backlogHeadP0}>Must Have (P0)</p>
-                <ul className={styles.backlogList}>
+            <div className={styles.backlogGrid}>
+              <div className={`${styles.backlogColumn} ${styles.backlogColumnP0}`}>
+                <div className={styles.backlogHead}>
+                  <AlertCircle size={16} strokeWidth={2.2} color="#1DB954" />
+                  <p className={`${styles.backlogHeadLabel} ${styles.backlogHeadP0}`}>Must Have</p>
+                  <span className={`${styles.backlogTier} ${styles.backlogTierP0}`}>P0</span>
+                </div>
+                <ul className={styles.backlogItems}>
                   <li>Recommendations Transparency — users understand what content they see and basic why</li>
                   <li>Plain-Language Explanations — avoid technical jargon; explain in natural language</li>
                   <li>Fairness &amp; Oversight — current metrics with targets, real-time monitoring</li>
@@ -323,17 +466,25 @@ export function PresentationPage() {
                   <li>Appeal &amp; Review Process — structured challenge mechanism with SLA and human review</li>
                 </ul>
               </div>
-              <div className={styles.backlogBlock}>
-                <p className={styles.backlogHeadP1}>Should Have (P1)</p>
-                <ul className={styles.backlogListSm}>
+              <div className={`${styles.backlogColumn} ${styles.backlogColumnP1}`}>
+                <div className={styles.backlogHead}>
+                  <TrendingUp size={16} strokeWidth={2.2} color="#ffa42b" />
+                  <p className={`${styles.backlogHeadLabel} ${styles.backlogHeadP1}`}>Should Have</p>
+                  <span className={`${styles.backlogTier} ${styles.backlogTierP1}`}>P1</span>
+                </div>
+                <ul className={styles.backlogItems}>
                   <li>Detailed Audit Trail — deeper fairness analytics and trend analysis</li>
                   <li>Multi-Tier Explanation Levels — technical/casual/detailed explanation options</li>
                   <li>Appeal History — users can revisit past appeals</li>
                 </ul>
               </div>
-              <div>
-                <p className={styles.backlogHeadP2}>Could Have (P2)</p>
-                <ul className={styles.backlogListSm}>
+              <div className={`${styles.backlogColumn} ${styles.backlogColumnP2}`}>
+                <div className={styles.backlogHead}>
+                  <Sparkles size={16} strokeWidth={2.2} color="#a7a7a7" />
+                  <p className={`${styles.backlogHeadLabel} ${styles.backlogHeadP2}`}>Could Have</p>
+                  <span className={`${styles.backlogTier} ${styles.backlogTierP2}`}>P2</span>
+                </div>
+                <ul className={styles.backlogItems}>
                   <li>Personalized Recommendation Factors — user-specific weight explainers</li>
                   <li>Real-Time Bias Alerts — proactive notification system</li>
                   <li>Community Fairness Voting — users rate perceived fairness</li>
@@ -344,188 +495,252 @@ export function PresentationPage() {
 
           {/* Slide 8: Prototype Roadmap */}
           <section>
+            <div className={styles.slideAccentBar} />
             <h2>06 | Prototype Roadmap</h2>
-            <div className={styles.roadmapWrap}>
+            <div className={styles.roadmapPanel}>
               <svg
                 data-testid="roadmap-timeline"
                 viewBox="0 0 800 160"
                 className={styles.roadmapSvg}
               >
-                <line x1="60" y1="70" x2="740" y2="70" stroke={GREEN} strokeWidth="3" />
+                <defs>
+                  <linearGradient id="timelineGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                    <stop offset="0%" stopColor={GREEN} stopOpacity="0.3" />
+                    <stop offset="50%" stopColor={GREEN} stopOpacity="1" />
+                    <stop offset="100%" stopColor="#1ed760" stopOpacity="1" />
+                  </linearGradient>
+                </defs>
+                <line x1="60" y1="70" x2="740" y2="70" stroke="url(#timelineGradient)" strokeWidth="3" />
                 {milestones.map((m, i) => {
                   const cx = 60 + (680 / (milestones.length - 1)) * i;
                   return (
                     <g key={m.version}>
                       {m.current ? (
-                        <circle cx={cx} cy={70} r="14" fill={GREEN} stroke={GREEN} strokeWidth="3" />
+                        <>
+                          <circle cx={cx} cy={70} r="18" fill={GREEN} opacity="0.25" />
+                          <circle cx={cx} cy={70} r="12" fill={GREEN} stroke="#1ed760" strokeWidth="3" />
+                        </>
                       ) : (
-                        <circle cx={cx} cy={70} r="10" fill="none" stroke={GREEN} strokeWidth="3" />
+                        <circle cx={cx} cy={70} r="9" fill="#121212" stroke={GREEN} strokeWidth="3" />
                       )}
                       <text x={cx} y={40} textAnchor="middle" className={styles.roadmapVersion}>
                         {m.version}
                       </text>
-                      <text x={cx} y={110} textAnchor="middle" className={styles.roadmapDate}>
+                      <text x={cx} y={108} textAnchor="middle" className={styles.roadmapDate}>
                         {m.date}
                       </text>
                     </g>
                   );
                 })}
               </svg>
-              <div className={styles.roadmapDetails}>
-                <div className={styles.roadmapCard}>
-                  <ul className={styles.roadmapList}>
-                    <li>Basic recommendation transparency</li>
-                    <li>Static fairness metrics</li>
-                    <li>Simple appeal form</li>
-                  </ul>
-                </div>
-                <div className={styles.roadmapCard}>
-                  <ul className={styles.roadmapList}>
-                    <li>Plain-language explanations</li>
-                    <li>Improved UI</li>
-                    <li>Decision history tab</li>
-                  </ul>
-                </div>
-                <div className={styles.roadmapCard}>
-                  <ul className={styles.roadmapList}>
-                    <li>Fairness audit dashboard</li>
-                    <li>Multi-tier explanations</li>
-                    <li>Usability study prep</li>
-                  </ul>
-                </div>
-                <div className={styles.roadmapCardCurrent}>
-                  <ul className={styles.roadmapList}>
-                    <li>Participant feedback iterations</li>
-                    <li>Refined UX</li>
-                    <li>Production-ready</li>
-                  </ul>
-                </div>
+            </div>
+            <div className={styles.roadmapDetails}>
+              <div className={styles.roadmapCard}>
+                <p className={styles.roadmapCardLabel}>Foundation</p>
+                <ul className={styles.roadmapList}>
+                  <li>Basic recommendation transparency</li>
+                  <li>Static fairness metrics</li>
+                  <li>Simple appeal form</li>
+                </ul>
+              </div>
+              <div className={styles.roadmapCard}>
+                <p className={styles.roadmapCardLabel}>Clarity</p>
+                <ul className={styles.roadmapList}>
+                  <li>Plain-language explanations</li>
+                  <li>Improved UI</li>
+                  <li>Decision history tab</li>
+                </ul>
+              </div>
+              <div className={styles.roadmapCard}>
+                <p className={styles.roadmapCardLabel}>Depth</p>
+                <ul className={styles.roadmapList}>
+                  <li>Fairness audit dashboard</li>
+                  <li>Multi-tier explanations</li>
+                  <li>Usability study prep</li>
+                </ul>
+              </div>
+              <div className={styles.roadmapCardCurrent}>
+                <p className={styles.roadmapCardLabel}>Current Build</p>
+                <ul className={styles.roadmapList}>
+                  <li>Participant feedback iterations</li>
+                  <li>Refined UX</li>
+                  <li>Production-ready</li>
+                </ul>
               </div>
             </div>
           </section>
 
           {/* Slide 9: User Testing Protocol */}
           <section>
+            <div className={styles.slideAccentBar} />
             <h2>07 | User Testing — Protocol &amp; Participants</h2>
-            <div className={styles.protocolGrid}>
-              <div>
-                <p className={styles.accentHeading}>Test Date</p>
-                <p>April 1–3, 2026</p>
-
-                <p className={`${styles.accentHeading} ${styles.mt1}`}>Participant Personas</p>
-                <ul className={styles.personaList}>
-                  <li>
+            <div className={styles.protocolLayout}>
+              <div className={styles.protocolColumn}>
+                <div className={styles.testDateBar}>
+                  <Calendar size={13} strokeWidth={2.2} />
+                  Test Date: April 1–3, 2026
+                </div>
+                <p className={styles.protocolHeading}>
+                  <Users size={14} strokeWidth={2.2} />
+                  Participant Personas
+                </p>
+                <div className={styles.personaCard}>
+                  <span className={styles.personaIcon}>
+                    <User size={18} strokeWidth={2} />
+                  </span>
+                  <div className={styles.personaBody}>
                     <span className={styles.personaName}>P1 — Power User</span>
-                    <br />
                     <span className={styles.personaHint}>highly engaged, wants technical details</span>
-                  </li>
-                  <li className={styles.mt05}>
+                  </div>
+                </div>
+                <div className={styles.personaCard}>
+                  <span className={styles.personaIcon}>
+                    <Music2 size={18} strokeWidth={2} />
+                  </span>
+                  <div className={styles.personaBody}>
                     <span className={styles.personaName}>P2 — Music-Focused</span>
-                    <br />
                     <span className={styles.personaHint}>casual, cares about song recommendations</span>
-                  </li>
-                  <li className={styles.mt05}>
+                  </div>
+                </div>
+                <div className={styles.personaCard}>
+                  <span className={styles.personaIcon}>
+                    <UserMinus size={18} strokeWidth={2} />
+                  </span>
+                  <div className={styles.personaBody}>
                     <span className={styles.personaName}>P3 — Casual User</span>
-                    <br />
                     <span className={styles.personaHint}>minimal engagement, wants simplicity</span>
-                  </li>
-                </ul>
+                  </div>
+                </div>
               </div>
-              <div>
-                <p className={styles.accentHeading}>Test Tasks</p>
-                <ul className={styles.personaList}>
-                  <li>
-                    <span className={styles.personaName}>Task 1: Orientation</span>
-                    <br />
-                    <span className={styles.personaHint}>navigate to recommendations section</span>
-                  </li>
-                  <li className={styles.mt05}>
-                    <span className={styles.personaName}>Task 2: Explanation</span>
-                    <br />
-                    <span className={styles.personaHint}>find why a song appeared</span>
-                  </li>
-                  <li className={styles.mt05}>
-                    <span className={styles.personaName}>Task 3: Fairness</span>
-                    <br />
-                    <span className={styles.personaHint}>check fairness metrics</span>
-                  </li>
-                  <li className={styles.mt05}>
-                    <span className={styles.personaName}>Task 4: Appeal</span>
-                    <br />
-                    <span className={styles.personaHint}>file an appeal for unfair treatment</span>
-                  </li>
-                </ul>
+              <div className={styles.protocolColumn}>
+                <p className={styles.protocolHeading}>
+                  <ClipboardCheck size={14} strokeWidth={2.2} />
+                  Test Tasks
+                </p>
+                <div className={styles.taskChipStack}>
+                  <div className={styles.taskChip}>
+                    <span className={styles.taskNumber}>1</span>
+                    <div>
+                      <span className={styles.taskName}>Task 1: Orientation</span>
+                      <span className={styles.taskHint}>navigate to recommendations section</span>
+                    </div>
+                  </div>
+                  <div className={styles.taskChip}>
+                    <span className={styles.taskNumber}>2</span>
+                    <div>
+                      <span className={styles.taskName}>Task 2: Explanation</span>
+                      <span className={styles.taskHint}>find why a song appeared</span>
+                    </div>
+                  </div>
+                  <div className={styles.taskChip}>
+                    <span className={styles.taskNumber}>3</span>
+                    <div>
+                      <span className={styles.taskName}>Task 3: Fairness</span>
+                      <span className={styles.taskHint}>check fairness metrics</span>
+                    </div>
+                  </div>
+                  <div className={styles.taskChip}>
+                    <span className={styles.taskNumber}>4</span>
+                    <div>
+                      <span className={styles.taskName}>Task 4: Appeal</span>
+                      <span className={styles.taskHint}>file an appeal for unfair treatment</span>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
           </section>
 
           {/* Slide 10: Results Matrix (heatmap) */}
           <section>
+            <div className={styles.slideAccentBar} />
             <h2>08 | Results Matrix</h2>
-            <div className={styles.matrixWrap}>
-              <svg
-                data-testid="testing-matrix"
-                viewBox="0 0 520 320"
-                className={styles.matrixSvg}
-              >
-                {/* column headers (short codes to avoid text collision with slide 9) */}
-                {personaShortCodes.map((code, i) => {
-                  const x = 150 + i * 110 + 50;
-                  return (
-                    <text
-                      key={code}
-                      x={x}
-                      y={40}
-                      textAnchor="middle"
-                      className={styles.matrixHeader}
-                    >
-                      {code}
-                    </text>
-                  );
-                })}
-                {/* rows */}
-                {matrixRows.map((row, rowIdx) => {
-                  const y = 70 + rowIdx * 60;
-                  return (
-                    <g key={row.task}>
-                      <text x={140} y={y + 38} textAnchor="end" className={styles.matrixRowLabel}>
-                        {row.task}
+            <div className={styles.matrixLayout}>
+              <div className={styles.matrixPanel}>
+                <svg
+                  data-testid="testing-matrix"
+                  viewBox="0 0 520 320"
+                  className={styles.matrixSvg}
+                >
+                  {/* column headers (short codes to avoid text collision with slide 9) */}
+                  {personaShortCodes.map((code, i) => {
+                    const x = 150 + i * 110 + 50;
+                    return (
+                      <text
+                        key={code}
+                        x={x}
+                        y={40}
+                        textAnchor="middle"
+                        className={styles.matrixHeader}
+                      >
+                        {code}
                       </text>
-                      {row.scores.map((score, colIdx) => {
-                        const x = 150 + colIdx * 110;
-                        return (
-                          <g key={colIdx}>
-                            <rect
-                              x={x}
-                              y={y}
-                              width={100}
-                              height={50}
-                              rx={6}
-                              fill={heatColor(score)}
-                            />
-                            <text
-                              x={x + 50}
-                              y={y + 32}
-                              textAnchor="middle"
-                              className={styles.matrixCellText}
-                            >
-                              {score}
-                            </text>
-                          </g>
-                        );
-                      })}
-                    </g>
-                  );
-                })}
-              </svg>
-              <p className={styles.matrixScale}>
-                <span className={styles.subduedLabel}>Scale:</span> 1–5 (5 = task completed easily, 1 = unable to complete)
-              </p>
-              <div className={styles.matrixFinding}>
-                <p className={styles.matrixFindingText}>
-                  <span className={styles.bold}>Key Finding:</span> Casual participants (P3) struggled
-                  with explanation depth and fairness metric interpretation. Recommend a simplified
-                  tier for less-engaged users.
+                    );
+                  })}
+                  {/* rows */}
+                  {matrixRows.map((row, rowIdx) => {
+                    const y = 70 + rowIdx * 60;
+                    return (
+                      <g key={row.task}>
+                        <text x={140} y={y + 38} textAnchor="end" className={styles.matrixRowLabel}>
+                          {row.task}
+                        </text>
+                        {row.scores.map((score, colIdx) => {
+                          const x = 150 + colIdx * 110;
+                          return (
+                            <g key={colIdx}>
+                              <rect
+                                x={x}
+                                y={y}
+                                width={100}
+                                height={50}
+                                rx={6}
+                                fill={heatColor(score)}
+                              />
+                              <text
+                                x={x + 50}
+                                y={y + 32}
+                                textAnchor="middle"
+                                className={styles.matrixCellText}
+                              >
+                                {score}
+                              </text>
+                            </g>
+                          );
+                        })}
+                      </g>
+                    );
+                  })}
+                </svg>
+                <div className={styles.matrixLegend}>
+                  <p className={styles.matrixLegendLabel}>Legend</p>
+                  <span className={styles.matrixLegendChip}>
+                    <span className={styles.matrixLegendSwatch} style={{ background: GREEN }} />
+                    5 — Easy
+                  </span>
+                  <span className={styles.matrixLegendChip}>
+                    <span className={styles.matrixLegendSwatch} style={{ background: `${GREEN}66` }} />
+                    3 — Neutral
+                  </span>
+                  <span className={styles.matrixLegendChip}>
+                    <span className={styles.matrixLegendSwatch} style={{ background: RED }} />
+                    1 — Unable
+                  </span>
+                </div>
+              </div>
+              <div className={styles.matrixSummary}>
+                <div className={styles.matrixFinding}>
+                  <p className={styles.matrixFindingLabel}>
+                    <Lightbulb size={12} strokeWidth={2.5} />
+                    Key Finding
+                  </p>
+                  <p className={styles.matrixFindingText}>
+                    Casual participants (P3) struggled with explanation depth and fairness metric
+                    interpretation. Recommend a simplified tier for less-engaged users.
+                  </p>
+                </div>
+                <p className={styles.matrixScale}>
+                  Scale: 1–5 (5 = task completed easily, 1 = unable to complete)
                 </p>
               </div>
             </div>
@@ -533,81 +748,116 @@ export function PresentationPage() {
 
           {/* Slide 11: Portal Features */}
           <section>
+            <div className={styles.slideAccentBar} />
             <h2>09 | Portal Features — What Made It Into V2.1</h2>
-            <div className={styles.featuresBody}>
-              <div className={styles.featuresGrid}>
-                <div className={styles.featureCard}>
-                  <p className={styles.featureTitle}>🎵 Recommendations Transparency</p>
-                  <p className={styles.featureBody}>How &amp; why a song appears in your queue</p>
-                  <p className={styles.featureStories}>Stories #1, #2, #3</p>
+            <div className={styles.featuresGrid}>
+              <div className={styles.featureCard}>
+                <div className={styles.featureHead}>
+                  <span className={styles.featureIcon}>
+                    <Eye size={20} strokeWidth={2} />
+                  </span>
+                  <p className={styles.featureTitle}>Recommendations Transparency</p>
                 </div>
-                <div className={styles.featureCard}>
-                  <p className={styles.featureTitle}>⚖️ Fairness &amp; Oversight</p>
-                  <p className={styles.featureBody}>
-                    Current metrics with targets, independent artist visibility monitoring
-                  </p>
-                  <p className={styles.featureStories}>Stories #4, #8</p>
-                </div>
-                <div className={styles.featureCard}>
-                  <p className={styles.featureTitle}>📋 Decision History</p>
-                  <p className={styles.featureBody}>
-                    Users can review a log of automated decisions that affected their experience
-                  </p>
-                  <p className={styles.featureStories}>Story #3 (extension)</p>
-                </div>
-                <div className={styles.featureCard}>
-                  <p className={styles.featureTitle}>✋ Appeal &amp; Review</p>
-                  <p className={styles.featureBody}>
-                    Structured process: form submission, 5–7 business day SLA, human review
-                  </p>
-                  <p className={styles.featureStories}>Stories #5, #10</p>
-                </div>
+                <p className={styles.featureBody}>How &amp; why a song appears in your queue</p>
+                <p className={styles.featureStories}>Stories #1, #2, #3</p>
               </div>
-              <div className={styles.featuresFooter}>
-                <p className={styles.featuresFooterText}>
-                  Prototype Version 2.1 · Tested April 1–3, 2026
+              <div className={styles.featureCard}>
+                <div className={styles.featureHead}>
+                  <span className={styles.featureIcon}>
+                    <Scale size={20} strokeWidth={2} />
+                  </span>
+                  <p className={styles.featureTitle}>Fairness &amp; Oversight</p>
+                </div>
+                <p className={styles.featureBody}>
+                  Current metrics with targets, independent artist visibility monitoring
                 </p>
+                <p className={styles.featureStories}>Stories #4, #8</p>
               </div>
+              <div className={styles.featureCard}>
+                <div className={styles.featureHead}>
+                  <span className={styles.featureIcon}>
+                    <History size={20} strokeWidth={2} />
+                  </span>
+                  <p className={styles.featureTitle}>Decision History</p>
+                </div>
+                <p className={styles.featureBody}>
+                  Users can review a log of automated decisions that affected their experience
+                </p>
+                <p className={styles.featureStories}>Story #3 (extension)</p>
+              </div>
+              <div className={styles.featureCard}>
+                <div className={styles.featureHead}>
+                  <span className={styles.featureIcon}>
+                    <Hand size={20} strokeWidth={2} />
+                  </span>
+                  <p className={styles.featureTitle}>Appeal &amp; Review</p>
+                </div>
+                <p className={styles.featureBody}>
+                  Structured process: form submission, 5–7 business day SLA, human review
+                </p>
+                <p className={styles.featureStories}>Stories #5, #10</p>
+              </div>
+            </div>
+            <div className={styles.featuresFooter}>
+              <p className={styles.featuresFooterText}>
+                Prototype Version 2.1 · Tested April 1–3, 2026
+              </p>
             </div>
           </section>
 
           {/* Slide 12: Key Takeaways */}
           <section>
+            <div className={styles.slideAccentBar} />
             <h2>Key Takeaways &amp; Reflections</h2>
             <div className={styles.takeawaysGrid}>
               <div className={styles.takeawayCard}>
-                <p className={styles.takeawayTitle}>01 Ambiguity is a feature</p>
-                <p className={styles.takeawayBody}>
-                  The open-ended case forced us to think about the actual problem before jumping to
-                  solutions.
-                </p>
+                <div className={styles.takeawayNumber}>01</div>
+                <div className={styles.takeawayBodyWrap}>
+                  <p className={styles.takeawayTitle}>Ambiguity is a feature</p>
+                  <p className={styles.takeawayBody}>
+                    The open-ended case forced us to think about the actual problem before jumping to
+                    solutions.
+                  </p>
+                </div>
               </div>
               <div className={styles.takeawayCard}>
-                <p className={styles.takeawayTitle}>02 Every assignment built on the last</p>
-                <p className={styles.takeawayBody}>
-                  Backlog → data model → prototype → testing → rollout planning. Nothing existed in
-                  isolation.
-                </p>
+                <div className={styles.takeawayNumber}>02</div>
+                <div className={styles.takeawayBodyWrap}>
+                  <p className={styles.takeawayTitle}>Every assignment built on the last</p>
+                  <p className={styles.takeawayBody}>
+                    Backlog → data model → prototype → testing → rollout planning. Nothing existed in
+                    isolation.
+                  </p>
+                </div>
               </div>
               <div className={styles.takeawayCard}>
-                <p className={styles.takeawayTitle}>03 User trust requires specificity</p>
-                <p className={styles.takeawayBody}>
-                  Vague fairness targets erode credibility. Real numbers and real process beat polished
-                  PR language.
-                </p>
+                <div className={styles.takeawayNumber}>03</div>
+                <div className={styles.takeawayBodyWrap}>
+                  <p className={styles.takeawayTitle}>User trust requires specificity</p>
+                  <p className={styles.takeawayBody}>
+                    Vague fairness targets erode credibility. Real numbers and real process beat polished
+                    PR language.
+                  </p>
+                </div>
               </div>
               <div className={styles.takeawayCard}>
-                <p className={styles.takeawayTitle}>04 Design for the least-engaged visitor</p>
-                <p className={styles.takeawayBody}>
-                  Tech-literate users will find their way; the confused person determines if the
-                  portal truly works.
-                </p>
+                <div className={styles.takeawayNumber}>04</div>
+                <div className={styles.takeawayBodyWrap}>
+                  <p className={styles.takeawayTitle}>Design for the least-engaged visitor</p>
+                  <p className={styles.takeawayBody}>
+                    Tech-literate users will find their way; the confused person determines if the
+                    portal truly works.
+                  </p>
+                </div>
               </div>
               <div className={styles.takeawayCardWide}>
-                <p className={styles.takeawayTitle}>05 Transparency is a product problem</p>
-                <p className={styles.takeawayBody}>
-                  How information is presented matters as much as what is disclosed.
-                </p>
+                <div className={styles.takeawayNumber}>05</div>
+                <div className={styles.takeawayBodyWrap}>
+                  <p className={styles.takeawayTitle}>Transparency is a product problem</p>
+                  <p className={styles.takeawayBody}>
+                    How information is presented matters as much as what is disclosed.
+                  </p>
+                </div>
               </div>
             </div>
           </section>
@@ -615,15 +865,33 @@ export function PresentationPage() {
           {/* Slide 13: Thank You */}
           <section>
             <div className={styles.thanksSlide}>
+              <div className={styles.eqDivider} aria-hidden="true" style={{ margin: '0 auto 1.5em auto' }}>
+                <span /><span /><span /><span /><span /><span /><span /><span />
+              </div>
               <h1 className={styles.thanksTitle}>Thank You</h1>
               <p className={styles.thanksPortalLine}>Transparency Portal · Questions &amp; Discussion</p>
               <p className={styles.thanksCourseLine}>Spring 2026 Project Closeout</p>
-              <p className={styles.thanksQA}>Questions &amp; Discussion</p>
-              <div className={styles.thanksAppendices}>
-                <p className={styles.thanksAppendixItem}>📋 Prioritized Product Backlog</p>
-                <p className={styles.thanksAppendixItem}>🗄️ Data Model (ERD)</p>
-                <p className={styles.thanksAppendixItem}>📊 Usability Test Report</p>
-                <p className={styles.thanksAppendixItem}>📣 Rollout &amp; Stakeholder Plan</p>
+              <p className={styles.thanksQA}>
+                <Headphones size={18} strokeWidth={2.2} style={{ marginRight: 8, verticalAlign: 'middle' }} />
+                Questions &amp; Discussion
+              </p>
+              <div className={styles.thanksAppendixRow}>
+                <span className={styles.thanksAppendixPill}>
+                  <FileText size={13} strokeWidth={2} />
+                  Prioritized Product Backlog
+                </span>
+                <span className={styles.thanksAppendixPill}>
+                  <Database size={13} strokeWidth={2} />
+                  Data Model (ERD)
+                </span>
+                <span className={styles.thanksAppendixPill}>
+                  <FileBarChart size={13} strokeWidth={2} />
+                  Usability Test Report
+                </span>
+                <span className={styles.thanksAppendixPill}>
+                  <Megaphone size={13} strokeWidth={2} />
+                  Rollout &amp; Stakeholder Plan
+                </span>
               </div>
             </div>
           </section>
